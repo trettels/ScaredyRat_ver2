@@ -430,8 +430,10 @@ def scaredy_find_csvs(csv_dir, prefix):
 
     for root, dirs, names in os.walk(csv_dir):
         for file in names:
+            print(file)
             if file.startswith(prefix):
                 f = os.path.join(root, file)
+                print(f)
                 csvlist.append(f)
 
     return(csvlist)
@@ -504,10 +506,12 @@ def compress_data(csvlist,tbin):
     return(allanims)
     
 def compile_SR(trialType, numEpoch, num_dEpoch,dEpoch_list, behavior, inpath, outpath):
+    # print(inpath+trialType + '-' + behavior)
     summaryCSVs = scaredy_find_csvs(inpath,trialType + '-' + behavior)
-    print(summaryCSVs)
+    # print(summaryCSVs)
     meanCSVs = scaredy_find_csvs(inpath,trialType + '-mean')
-    print(meanCSVs)
+    # print(inpath+trialType + '-mean')
+    # print(meanCSVs)
     medCSVs = scaredy_find_csvs(inpath,trialType + '-med')
     SEMCSVs = scaredy_find_csvs(inpath,trialType + '-SEM')
     for i in range(0,num_dEpoch):

@@ -17,6 +17,7 @@ sg.theme('Light Green 3')
 ## default ScaredyRat settings
 inpath = 'D:/Work/ShanskyLab/TestData/ECB_SPR2020/GUI_RAW' #'./'
 outpath = 'D:/Work/ShanskyLab/TestData/ECB_SPR2020/SR_GUI_OUT_TEST' #'./'
+outpath2 = 'D:/Work/ShanskyLab/TestData/ECB_SPR2020/SR_GUI_CompOut' #'./'
 raw_sheetSettings = {0: 'Track-Arena 1-Subject 1, Track-Arena 2-Subject 1, Track-Arena 3-Subject 1, Track-Arena 4-Subject 1',
                     1: 'Context A, Context B, FC, Extinction, EXTINCTION RETRIEVAL',
                     2: 'Context A, Context B, FC, Extinction, EXTINCTION RETRIEVAL',
@@ -37,7 +38,8 @@ raw_trialSettings = {0: '1',
 ## Setup menu layouts
 layout_MainWindow = [ [sg.Text('Main Window.\nUse buttons to navigate ScaredyRat settings')],
                 [sg.Button('Select Input Folder')],
-                [sg.Button('Select Output Folder')],
+                [sg.Button('Select Per-Animal Output Folder')],
+                [sg.Button('Select Compiled Output Folder')],
                 [sg.Button('Sheet Settings')],
                 [sg.Button('Trial Settings')],
                 [sg.Button('Epoch and Derived Epoch Settings')],
@@ -348,15 +350,15 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
             allDart.to_csv(dartOutFile)
 
     for k in range(0,len(trialType_list)):
-        srf.compile_SR(trialType_list[k],epochNum_list[k], len(derivedEpoch_list), derivedEpoch_list, 'Darting', inpath, outpath)
-        srf.compile_SR(trialType_list[k],epochNum_list[k], len(derivedEpoch_list), derivedEpoch_list, 'freezing', inpath, outpath)
+        srf.compile_SR(trialType_list[k],epochNum_list[k], len(derivedEpoch_list), derivedEpoch_list, 'Darting', outpath, outpath2)
+        srf.compile_SR(trialType_list[k],epochNum_list[k], len(derivedEpoch_list), derivedEpoch_list, 'Freezing', outpath, outpath2)
 
 
 ################################################################################################
 ## Execution
 ################################################################################################
 if __name__ == '__main__':
-    sg.Print(size=(180,40))
+    sg.Print(size=(180,25))
     sg.Print()
     mainWindow = sg.Window('ScaredyRat', layout_MainWindow)
 
@@ -366,8 +368,10 @@ if __name__ == '__main__':
             break
         elif event == 'Select Input Folder':
             inpath = sg.popup_get_folder('Please select the directory from which to load the Ethovision-style data', initial_folder=inpath)
-        elif event == 'Select Output Folder':
+        elif event == 'Select Per-Animal Output Folder':
             outpath = sg.popup_get_folder('Please select the directory in which to output the files', initial_folder=outpath)
+        elif event == 'Select Compiled Output Folder':
+            outpath2 = sg.popup_get_folder('Please select the directory in which to output the Compiled files', initial_folder=outpath2)
         elif event == 'Sheet Settings':
             sheetWindow = sg.Window('Sheet Settings', layout_SheetWin)
             # Event Loop to process "events" and get the "values" of the inputs
