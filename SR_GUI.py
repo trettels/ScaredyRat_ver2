@@ -345,9 +345,9 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
             dartOutFile=dartOutFile.format(ID)
             allDart.to_csv(dartOutFile)
 
-    for k in range(0,len(trialType_list)):
-        srf.compile_SR(trialType_list[k],epochNum_list[k], len(derivedEpoch_list), derivedEpoch_list, 'Darting', inpath, outpath)
-        srf.compile_SR(trialType_list[k],epochNum_list[k], len(derivedEpoch_list), derivedEpoch_list, 'freezing', inpath, outpath)
+    # for k in range(0,len(trialType_list)):
+    #     srf.compile_SR(trialType_list[k],epochNum_list[k], len(derivedEpoch_list), derivedEpoch_list, 'Darting', inpath, outpath)
+    #     srf.compile_SR(trialType_list[k],epochNum_list[k], len(derivedEpoch_list), derivedEpoch_list, 'freezing', inpath, outpath)
 
 
 ################################################################################################
