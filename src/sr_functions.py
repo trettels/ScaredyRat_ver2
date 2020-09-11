@@ -425,12 +425,18 @@ def get_top_vels(datadict,nmax, ntones):
     nmaxes['Mean'] = nmaxes.mean(axis = 1)
 
     return(nmaxes)
+    
+def get_anim(csv, n):
+    m = re.split('[-.]', csv)
+    anim = m[n]
+    return(anim)
+    
 def scaredy_find_csvs(csv_dir, prefix):
     csvlist = []
 
     for root, dirs, names in os.walk(csv_dir):
         for file in names:
-            print(file)
+            # print(file)
             if file.startswith(prefix):
                 f = os.path.join(root, file)
                 print(f)

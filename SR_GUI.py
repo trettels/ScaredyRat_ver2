@@ -256,7 +256,7 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
                     #Derived-epoch max velocity
                     dEpoch_maxVel[i][m] = srf.get_top_vels(dEpoch_df,1,nEpochEvents)#
                     dEpoch_maxVel_file = outpath + '/' + trialType + '-' + epochLabel[i] + '_' + derivedEpoch_list[m] + '-max-vels-{}.csv'
-                    dEpoch_maxVel_file = dEpoch_maxVel_file.format(ID)
+                    # dEpoch_maxVel_file = dEpoch_maxVel_file.format(ID)
 
                     # print('derived epoch')
 
@@ -264,19 +264,19 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
                     dEpoch_meanVel[i][m] = srf.get_means(dEpoch_df,derivedEpoch_list[m],nEpochEvents)
                     dEpoch_meanVel_file = outpath + '/' + trialType + '-' + epochLabel[i] + '_' + derivedEpoch_list[m] + '-mean-vels-{}.csv'
                     dEpoch_meanVel_file = dEpoch_meanVel_file.format(ID)
-                    dEpoch_meanVel[i][m].to_csv(dEpoch_meanVel_file)
+                    # dEpoch_meanVel[i][m].to_csv(dEpoch_meanVel_file)
 
                     #Derived-epoch Median velocity
                     dEpoch_medVel[i][m] = srf.get_meds(dEpoch_df,derivedEpoch_list[m],nEpochEvents)#
                     dEpoch_medVel_file = outpath + '/' + trialType + '-' + epochLabel[i]+ '_' + derivedEpoch_list[m] + '-med-vels-{}.csv'
                     dEpoch_medVel_file = dEpoch_medVel_file.format(ID)
-                    dEpoch_medVel[i][m].to_csv(dEpoch_medVel_file)
+                    # dEpoch_medVel[i][m].to_csv(dEpoch_medVel_file)
 
                     #Derived-epoch Velocity SEM
                     dEpoch_semVel[i][m] = srf.get_SEMs(dEpoch_df,derivedEpoch_list[m],nEpochEvents)#
                     dEpoch_semVel_file = outpath + '/' + trialType + '-' + epochLabel[i]+ '_' + derivedEpoch_list[m] + '-SEM-vels-{}.csv'
                     dEpoch_semVel_file = dEpoch_semVel_file.format(ID)
-                    dEpoch_semVel[i][m].to_csv(dEpoch_semVel_file)
+                    # dEpoch_semVel[i][m].to_csv(dEpoch_semVel_file)
 
                     #Derived-epoch freezing
 
