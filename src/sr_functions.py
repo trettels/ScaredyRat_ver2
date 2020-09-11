@@ -7,6 +7,8 @@ import seaborn as sns
 from IPython.display import display, HTML
 import math
 import time
+import PySimpleGUI as sg
+print = sg.Print # Set print to go to a window rather than the terminal
 
 def animal_read(inpath, filename, sheet):
     '''
@@ -438,12 +440,15 @@ def concat_data(means, SEMs, meds, ntones):
     allData = pd.DataFrame()
     ix = []
     for n in range(ntones):
+        if means.empty: continue
         allData = allData.append(means.iloc[:,n])
         ix.append('Tone {} Mean'.format(n+1))
     for n in range(ntones): 
+        if SEMs.empty: continue
         allData = allData.append(SEMs.iloc[:,n])
         ix.append('Tone {} SEM'.format(n+1))
     for n in range(ntones):     
+        if meds.empty: continue
         allData = allData.append(meds.iloc[:,n])       
         ix.append('Tone {} Median'.format(n+1))
 
@@ -500,7 +505,9 @@ def compress_data(csvlist,tbin):
     
 def compile_SR(trialType, numEpoch, num_dEpoch,dEpoch_list, behavior, inpath, outpath):
     summaryCSVs = scaredy_find_csvs(inpath,trialType + '-' + behavior)
+    print(summaryCSVs)
     meanCSVs = scaredy_find_csvs(inpath,trialType + '-mean')
+    print(meanCSVs)
     medCSVs = scaredy_find_csvs(inpath,trialType + '-med')
     SEMCSVs = scaredy_find_csvs(inpath,trialType + '-SEM')
     for i in range(0,num_dEpoch):

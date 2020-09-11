@@ -9,6 +9,8 @@ sys.path.append('./src')
 import sr_functions as srf
 import PySimpleGUI as sg
 
+print = sg.Print # Set print to go to a window rather than the terminal
+
 ## Set theme colors
 sg.theme('Light Green 3')
 
@@ -345,15 +347,17 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
             dartOutFile=dartOutFile.format(ID)
             allDart.to_csv(dartOutFile)
 
-    # for k in range(0,len(trialType_list)):
-    #     srf.compile_SR(trialType_list[k],epochNum_list[k], len(derivedEpoch_list), derivedEpoch_list, 'Darting', inpath, outpath)
-    #     srf.compile_SR(trialType_list[k],epochNum_list[k], len(derivedEpoch_list), derivedEpoch_list, 'freezing', inpath, outpath)
+    for k in range(0,len(trialType_list)):
+        srf.compile_SR(trialType_list[k],epochNum_list[k], len(derivedEpoch_list), derivedEpoch_list, 'Darting', inpath, outpath)
+        srf.compile_SR(trialType_list[k],epochNum_list[k], len(derivedEpoch_list), derivedEpoch_list, 'freezing', inpath, outpath)
 
 
 ################################################################################################
 ## Execution
 ################################################################################################
 if __name__ == '__main__':
+    sg.Print(size=(180,40))
+    sg.Print()
     mainWindow = sg.Window('ScaredyRat', layout_MainWindow)
 
     while True:
