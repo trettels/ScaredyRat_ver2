@@ -518,7 +518,7 @@ def compile_SR(trialType, numEpoch, num_dEpoch,dEpoch_list, behavior, inpath, ou
     meanCSVs = scaredy_find_csvs(inpath,trialType + '-mean')
     # print(inpath+trialType + '-mean')
     # print(meanCSVs)
-    medCSVs = scaredy_find_csvs(inpath,trialType + '-med')
+    medCSVs = scaredy_find_csvs(inpath,trialType + '-median')
     SEMCSVs = scaredy_find_csvs(inpath,trialType + '-SEM')
     for i in range(0,num_dEpoch):
         summaryData = concat_all_darting(summaryCSVs,i)
