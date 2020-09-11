@@ -498,21 +498,21 @@ def compress_data(csvlist,tbin):
 
     return(allanims)
     
-def compile_SR(trialType, num_dEpoch,dEpoch_list, behavior, inpath, outpath):
+def compile_SR(trialType, numEpoch, num_dEpoch,dEpoch_list, behavior, inpath, outpath):
     summaryCSVs = scaredy_find_csvs(inpath,trialType + '-' + behavior)
     meanCSVs = scaredy_find_csvs(inpath,trialType + '-mean')
     medCSVs = scaredy_find_csvs(inpath,trialType + '-med')
     SEMCSVs = scaredy_find_csvs(inpath,trialType + '-SEM')
     for i in range(0,num_dEpoch):
         summaryData = concat_all_darting(summaryCSVs,i)
-        outfile = os.path.join(outpath, projName + '-All-'+ trialType + '-' +dEpoch_list[i] + '-' + behavior + '.csv' )
+        outfile = os.path.join(outpath, 'All-'+ trialType + '-' + dEpoch_list[i] + '-' + behavior + '.csv' )
         summaryData.to_csv(outfile)
         
-        means = compress_data(meancsvs,i)
-        meds = compress_data(medcsvs,i)
-        SEMs = compress_data(SEMcsvs,i)
-        allData = concat_data(means,SEMs,meds,nFCtones)
-        outfile = os.path.join(outpath,projName + '-All-'+ trialType + '-' +dEpoch_list[i] + '-data.csv')
+        means = compress_data(meanCSVs,i)
+        meds = compress_data(medCSVs,i)
+        SEMs = compress_data(SEMCSVs,i)
+        allData = concat_data(means,SEMs,meds,numEpoch)
+        outfile = os.path.join(outpath,'All-'+ trialType + '-' +dEpoch_list[i] + '-data.csv')
         allData.to_csv(outfile)
     
     

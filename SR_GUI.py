@@ -344,12 +344,11 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
             dartOutFile = outpath + '/' + trialType + '-Darting-{}.csv'
             dartOutFile=dartOutFile.format(ID)
             allDart.to_csv(dartOutFile)
-    iter01 = 0
-    for j in derivedEpoch_list:
-        for k in trialType_list:
-            srf.compile_SR(k, iter01, j, 'Darting', inpath, outpath)
-            srf.compile_SR(k, iter01, j, 'freezing', inpath, outpath)
-            iter01 +=1
+
+    # for k in trialType_list:
+    #     srf.compile_SR(k,len(epochLabel), len(derivedEpoch_list), derivedEpoch_list, 'Darting', inpath, outpath)
+    #     srf.compile_SR(k,len(epochLabel), len(derivedEpoch_list), derivedEpoch_list, 'freezing', inpath, outpath)
+
 
 ################################################################################################
 ## Execution
