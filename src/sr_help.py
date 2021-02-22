@@ -1,0 +1,1 @@
+## Help strings for scaredy rat!

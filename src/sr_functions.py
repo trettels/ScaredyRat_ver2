@@ -1,13 +1,14 @@
-import os
+import os, sys
 import re
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from IPython.display import display, HTML
+
 import math
 import time
 import PySimpleGUI as sg
+
 print = sg.Print # Set print to go to a window rather than the terminal
 
 def animal_read(inpath, filename, sheet):
@@ -27,7 +28,8 @@ def animal_read(inpath, filename, sheet):
     animal = df.iloc[anim_loc][0]
 
     ctx_loc = df.index.get_loc('Trial Control settings')
-    context = df.iloc[ctx_loc][0]
+    context = str(df.iloc[ctx_loc][0])
+    context=context.strip();
 
     skiprows = df.index.get_loc('Trial time') + 1
     print("{} {} is {} in {}".format(filename, sheet, animal, context))
@@ -37,39 +39,44 @@ def animal_read(inpath, filename, sheet):
     df.replace(to_replace='-',value=0,inplace=True)
     return(animal,context,df)
     
-def find_tone_vels(df,i):
+def find_tone_vels(df,i, epochLabel):
     '''
     '''
     tone = pd.DataFrame()
     num = str(i+1)
-    
+    # print(epochLabel)
     try:
-        label = 'Tone ' + num
+        label = epochLabel + num
+        # print(label)
         tone = pd.DataFrame(df[df[label] == 1])
     except:
-        label = 'Tone' + num
+        label = epochLabel.strip() + num
+        # print(label)
         tone = pd.DataFrame(df[df[label] == 1])
     
     tone = tone['Velocity']
     return(tone)
 
-def find_shock_vels(df, i):
+def find_delim_vels(df,ndelim,epoch,delim_times):  #(df, i):
     '''
     '''
     sresponse = pd.DataFrame()
-    num = str(i+1)
+    num = str(ndelim+1)
     try:
-        label = 'Tone ' + num
+        label = epoch + num
         tone = df[df[label] == 1] #Tone dataframe
     except:
-        label = 'Tone' + num
+        label = epoch.strip() + num
         tone = df[df[label] == 1] #Tone dataframe
-    toneend = tone.iloc[-1] #Time for tone end
-
-    starttime = math.floor(toneend['Recording time']) #Time for sresponse start
-    endtime = math.floor(toneend['Recording time'] + 5) #Time for sresponse end
-    itime = df.index.get_loc(starttime,method='bfill') #Index for sresponse start
-    etime = df.index.get_loc(endtime,method='bfill') #Index for sresponse end
+    # print(delim_times)
+    # print(' ')
+    delimidx = tone.iloc[int(delim_times[0])] #Time for tone start
+    sto = int(delim_times[1])
+    eto = int(delim_times[2])
+    starttime = math.floor(delimidx['Recording time']+sto) #Time for pretone start
+    endtime = math.floor(delimidx['Recording time']+eto) #Time for pretone end
+    itime = df.index.get_loc(starttime,method='bfill') #Index for pretone start
+    etime = df.index.get_loc(endtime,method='bfill') #Index for pretone end
 
     sresponse = df.iloc[itime:etime] #df for sresponse
     sresponse = sresponse['Velocity']
@@ -90,10 +97,12 @@ def find_delim_segment(df, ndelim, delim):
     '''
     datarray = {}
     i = 0
+    # print(delim)
     while i < ndelim: # number of delimiters
         num = str(i+1)
         try:
             label = delim + num
+            # print(label)
             dat = pd.DataFrame(df[df[label] == 1])
         except:
             label = delim.strip() + num
@@ -122,7 +131,11 @@ def find_timeperiod(df, nperiods, starttime, endtime):
         datarray[i] = dat
         i += 1
     return(datarray)
-
+# def find_delim_vels(df,ndelim,epoch,delim_times):
+#     full_df = find_delim_based_time(df,ndelim,epoch,delim_times[0],delim_times[1],delim_times[2])
+#     print(full_df)
+#     return(full_df('Velocity'))
+    
 def find_delim_based_time(df, ndelim, delim, startidx, startoffset, stopoffset):
     '''
     Creates dictionary of each pretone. Values
@@ -133,10 +146,10 @@ def find_delim_based_time(df, ndelim, delim, startidx, startoffset, stopoffset):
     while i< ndelim:
         num = str(i+1)
         try:
-            label = delim.strip() + num
+            label = delim + num
             predat = pd.DataFrame(df[df[label] == 1])
         except:
-            label = delim + num
+            label = delim.strip() + num
             predat = pd.DataFrame(df[df[label] == 1])
             
         delimidx = predat.iloc[startidx] #Time for tone start
@@ -197,8 +210,8 @@ def get_freezing(datadict, ntones, freezingThreshold, binSecs):
 
     i = 0
     while i < ntones:
-        toneLabel = 'Tone {}'.format(str(i))
-
+        toneLabel = 'Tone {}'.format(str(i+1))
+        print(toneLabel)
         epoch = datadict[i]
         vels = epoch['Velocity']
 
@@ -236,7 +249,7 @@ def get_darting(datadict, ntones, dartThreshold, binSecs):
 
     i = 0
     while i < ntones:
-        toneLabel = 'Tone {}'.format(str(i))
+        toneLabel = 'Tone {}'.format(str(i+1))
 
         epoch = datadict[i]
         vels = epoch['Velocity']
@@ -263,10 +276,32 @@ def get_darting(datadict, ntones, dartThreshold, binSecs):
         i += 1
     return(darting, dartingTimes)
 
-def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs):
+def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs, epochLabel, printSettings, printLabels):
+    colormap = [  [1/256,  25/256,  89/256],
+                [16/256,  63/256,  96/256],
+                [28/256,  90/256,  98/256],
+                [60/256, 109/256, 86/256],
+                [104/256, 123/256, 62/256],
+                [157/256, 137/256, 43/256],
+                [210/256, 147/256, 67/256],
+                [248/256, 161/256, 123/256],
+                [253/256, 183/256, 188/256],
+                [250/256, 204/256, 250/256,]  ]
+    
+                # [ [26/256,  14/256,  52/256],
+                # [69/256,  32/256,  76/256],
+                # [110/256,  62/256, 103/256], 
+                # [133/256,  94/256, 120/256],
+                # [141/256, 121/256, 130/256],
+                # [146/256, 148/256, 137/256],
+                # [151/256, 174/256, 145/256],
+                # [167/256, 206/256, 157/256],
+                # [213/256, 242/256, 188/256],
+                # [254/256, 254/256, 216/256]]
+    handle_list=[]
     ## plot stuff
     vels = pd.DataFrame(anim['Velocity'])
-
+    # print('Trying to plot, 1')
     plt.style.use('seaborn-white')
     plt.figure(figsize=(16,8),facecolor='white',edgecolor='white')
     plt.axhline(linewidth=2, color='black')
@@ -279,24 +314,46 @@ def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs):
     plt.rcParams.update(parameters)
     # Plots main velocity in black
     line1, = plt.plot(vels,color='k',linewidth=0.1,label='ITI')
-
+    handle_list.append(line1)
+    # print('Trying to plot, 2')
     # Loops through tones, plots each one in cyan
     i = 0
     hasTone = False
     while i < ntones:            
-        tone = find_tone_vels(anim,i)
-        line2, = plt.plot(tone,color='c',linewidth=0.5,label='Tone')            
+        tone = find_tone_vels(anim,i, epochLabel)
+        line2, = plt.plot(tone,color='c',linewidth=0.5,label=epochLabel.strip())  
         i += 1
         hasTone = True
-
+    handle_list.append(line2)
+    # print('Trying to plot, 3')
     # Loops through shocks, plots each one in magenta
-    i = 0
-    hasShock = False
-    while i < ntones:
-        sresponse = find_shock_vels(anim,i)
-        line3, = plt.plot(sresponse,color='m',linewidth=0.5,label='Shock')
-        i += 1
+    line3=[]
+    hasShock=False
+    for i in range(0,len(printLabels)):
+        # print(printSettings[i][3])
+        # print(bool(printSettings[i][3]))
+        if(printSettings[i][3] == 'False'):
+            continue
+        c_num = i % 10
         hasShock = True
+        for j in range(0,ntones):
+            response = find_delim_vels(anim,j,epochLabel,printSettings[i])
+            line_tmp, = plt.plot(response,color=colormap[c_num],linewidth=0.5,label=printLabels[i])
+            
+        handle_list.append(line_tmp)    
+    # print('Trying to plot, 4')
+    # i = 0
+    # hasShock = False
+    # while i < ntones:
+    #     j=0
+    #     for j in range(0,len(printSettings)):
+    #         if(not printSettings[3]):
+    #             continue
+    #         c_num =j % 10
+    #         sresponse = find_delim_vels(anim,i,printLabels[j],printSettings)
+    #         line3, = plt.plot(sresponse,color=colormap[c_num],linewidth=0.5,label=printLabels[j])
+    #         i += 1
+    #         hasShock = True
 
     # Loops through freezing bins, plots each below the x-axis
     for timebin in FTs:
@@ -308,26 +365,22 @@ def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs):
         plt.plot([timebin[0],timebin[1]],[-0.7,-0.7],color='#167512',linewidth=3)
         
     plt.ylim(-1,35)
-
+    # print('Trying to plot, 5')
     sns.despine(left=True, bottom=True, right=True)
     plt.title(ID + " " + trialTypeFull)
-    if(hasTone & hasShock):
-        plt.legend(handles=[line1,line2,line3])
-    elif(hasTone):
-        plt.legend(handles=[line1,line2])
-    else:
-        plt.legend(handles=[line1])
+
+    plt.legend(handles=handle_list, loc='upper right')
     
     plt.ylabel('Velocity (cm/s)')
     plt.xlabel('Trial time (s)')
-
+    # print('Trying to plot, 6')
     ## define where to save the fig
     fname = outpath + '/' + trialType + '-plot-{}'
     fname = fname.format(ID)
 
     plt.savefig(fname, dpi=300)
     plt.savefig(fname+'eps', format='eps',dpi=300)
-
+    # print('Trying to plot, 7')
     # plt.show()
     plt.close()
     return()
@@ -388,7 +441,7 @@ def get_vels(df, ntones):
     i = 0
     while i < ntones: # number of tones
         vels = []
-        num = str(i)
+        num = str(i+1)
         try:
             label = 'Tone ' + num
             tone = pd.DataFrame(df[df[label] == 1])
@@ -412,7 +465,10 @@ def get_top_vels(datadict,nmax, ntones):
         vels = epoch['Velocity']
         vlist = vels.tolist()
         vlist.sort()
-        if(nmax==1):
+        if not vlist:
+            i +=1
+            continue
+        elif(nmax==1):
             topvels = pd.DataFrame([vlist[-1]])
         else:
             topvels = pd.DataFrame([vlist[-nmax:-1]])
@@ -439,7 +495,7 @@ def scaredy_find_csvs(csv_dir, prefix):
             # print(file)
             if file.startswith(prefix):
                 f = os.path.join(root, file)
-                print(f)
+                # print(f)
                 csvlist.append(f)
 
     return(csvlist)
@@ -492,7 +548,14 @@ def concat_all_darting(csvlist, loc):
     for csv in csvlist:
         anim = get_anim(csv,-2)
         df = pd.read_csv(csv, index_col=0).T
+        # print(loc)
+        # print(anim)
+        # print(csv)
+        # try:
         percentF = pd.DataFrame([df.iloc[loc]], index=[anim])
+        # except:
+        #     print('FAILED' + str(loc) + ' '+ str(anim))
+        #     percentF = pd.DataFrame([df.iloc[loc]], index=[anim])
         freezing = pd.concat([freezing, percentF])
 
     return(freezing)
@@ -510,26 +573,54 @@ def compress_data(csvlist,tbin):
         allanims = pd.concat([allanims,tonevels])
 
     return(allanims)
-    
-def compile_SR(trialType, numEpoch, num_dEpoch,dEpoch_list, behavior, inpath, outpath):
+def compile_BaselineSR(trialType, inpath, outpath):
+        baselineCSVs = scaredy_find_csvs(inpath,trialType + '-baseline')
+        
+        baselineData = concat_all_darting(baselineCSVs,2)
+        outfile = os.path.join(outpath, 'All-'+ trialType + '-baseline.csv' )
+        baselineData.to_csv(outfile)        
+        
+def compile_SR(trialType, epochLabel, numEpoch, num_dEpoch,dEpoch_list, behavior, inpath, outpath):
     # print(inpath+trialType + '-' + behavior)
     summaryCSVs = scaredy_find_csvs(inpath,trialType + '-' + behavior)
     # print(summaryCSVs)
     meanCSVs = scaredy_find_csvs(inpath,trialType + '-mean')
+    # print(dEpoch_list)
+
     # print(inpath+trialType + '-mean')
     # print(meanCSVs)
     medCSVs = scaredy_find_csvs(inpath,trialType + '-median')
     SEMCSVs = scaredy_find_csvs(inpath,trialType + '-SEM')
+    num_dEpoch = len(dEpoch_list)
+    # print(dEpoch_list)
+    if num_dEpoch==0 or dEpoch_list == ['']:
+        return
+    # print(num_dEpoch)
     for i in range(0,num_dEpoch):
-        summaryData = concat_all_darting(summaryCSVs,i)
+        if(behavior.lower() == "freezing"):
+            summaryData = concat_all_freezing(summaryCSVs,i)
+        else:
+            # print(i)
+            print(dEpoch_list[i])
+            summaryData = concat_all_darting(summaryCSVs,i)
+            
         outfile = os.path.join(outpath, 'All-'+ trialType + '-' + dEpoch_list[i] + '-' + behavior + '.csv' )
         summaryData.to_csv(outfile)
+        # print(epochLabel[0])
+        # print(trialType)
+        # print(dEpoch_list[i])
+        maxCSVs = scaredy_find_csvs(inpath, trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-max')
+        maxData = concat_all_darting(maxCSVs,1)
+        outfile = os.path.join(outpath, 'All-'+ trialType + '-' + dEpoch_list[i] + '-' + 'MaxVel' + '.csv' )
+        maxData.to_csv(outfile)
+        
+        
         
         means = compress_data(meanCSVs,i)
         meds = compress_data(medCSVs,i)
         SEMs = compress_data(SEMCSVs,i)
         allData = concat_data(means,SEMs,meds,numEpoch)
-        outfile = os.path.join(outpath,'All-'+ trialType + '-' +dEpoch_list[i] + '-data.csv')
+        outfile = os.path.join(outpath,'All-'+ trialType + '-' +dEpoch_list[i] + '-VelocitySummary.csv')
         allData.to_csv(outfile)
     
     
