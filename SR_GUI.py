@@ -27,13 +27,13 @@ raw_sheetSettings = {0: 'Track-Arena 1-Subject 1, Track-Arena 2-Subject 1, Track
                     3: 'FC',
                     4: '7'}
 raw_epochSettings = {'TrialSelectDropdown':'Context A',
-                    0: ['Tone', True, 'PreTone, Shock, PostShock', '0,-30,0,False', '-1,0,5,True','-1,5,35,False'],
-                    # 1: ['Tone', True, 'PreTone', '0,-30,0,False'],
-                    # 2: ['Tone', True, 'PreTone', '0,-30,0,False'],
-                    # 3: ['Tone', True, ],
+                    0: ['Tone', True, 'PreTone, Shock, PostShock', '0,-30,0,True', '-1,0,5,True','-1,5,35,True'],
+                    1: ['Tone', True, 'PreTone, Shock, PostShock', '0,-30,0,True', '-1,0,5,True','-1,5,35,True'],
+                    2: ['Tone', True, 'PreTone, Shock, PostShock', '0,-30,0,True', '-1,0,5,True','-1,5,35,True'],
+                    3: ['Tone', True, 'PreTone, Shock, PostShock', '0,-30,0,True', '-1,0,5,True','-1,5,35,True']}
                     # 4: ['Tone', True, 'PreTone', '0,-30,0,False']}
                     #5: ['','','-1,5,35', '', '']}
-                    }
+
 raw_trialSettings = {0: '1',
                     1: '120',
                     2: '0.1',
@@ -136,7 +136,7 @@ def parseEpochSettings(raw_epoch_settings):
     epochLabel = []
     derivedEpoch_list = []
     dEpochTime = []
-    for k in range(0,len(raw_epoch_settings)-1):
+    for k in range(0,len(raw_epoch_settings)-2):
         tmp1 = raw_epoch_settings[k][0].split(',')
         for i in range(0,len(tmp1)):
             if raw_epoch_settings[0][1]:
@@ -156,6 +156,9 @@ def parseEpochSettings(raw_epoch_settings):
             # if(iter01 >= len(raw_epochSettings[k])):
             #     raw_epochSettings[k].append('0,0,0,False')
             # print(raw_epochSettings[k][iter01])
+            # print(k)
+            # print(iter01)
+            # print(len(raw_epochSettings))
             dEpochTime[k].append((raw_epochSettings[k][iter01].split(',')))
     return(epochLabel, derivedEpoch_list, dEpochTime)
 
@@ -457,14 +460,29 @@ if __name__ == '__main__':
                 if sheet_event == 'Apply':	# if user closes window or clicks cancel
                     raw_sheetSettings = sheet_values
                     sheetlist, detectionSettingsLabel, trialTypeFull_list, trialType_list, epochNum_list = parseSheetSettings(raw_sheetSettings)
-                    for k in range(len(raw_epochSettings), len(detectionSettingsLabel)-1):
-                        del raw_epochSettings[k]
+                    # print(len(detectionSettingsLabel))
+                    # print(len(raw_epochSettings))
+
+                    # if len(raw_epochSettings) > len(detectionSettingsLabel)+1:
+                    #     for k in range(len(detectionSettingsLabel)-1, len(raw_epochSettings)):
+                    #         del raw_epochSettings[k]
+                    if len(raw_epochSettings) < len(detectionSettingsLabel)+1:
+                        for k in range(len(raw_epochSettings)-1, len(detectionSettingsLabel)):
+                            raw_epochSettings[k] = ['Tone', True, 'Shock', '0,0,0,False']
 
                 if sheet_event == 'Ok':	# if user closes window or clicks cancel
                     raw_sheetSettings = sheet_values
                     sheetlist, detectionSettingsLabel, trialTypeFull_list, trialType_list, epochNum_list = parseSheetSettings(raw_sheetSettings)
-                    for k in range(len(raw_epochSettings), len(detectionSettingsLabel)-1):
-                        del raw_epochSettings[k]
+                    # print(len(detectionSettingsLabel))
+                    # print(len(raw_epochSettings))
+
+                    #if len(raw_epochSettings) > len(detectionSettingsLabel)+1:
+                        # for k in range(len(detectionSettingsLabel)-1, len(raw_epochSettings)):
+                        #     del raw_epochSettings[k]
+                    if len(raw_epochSettings) < len(detectionSettingsLabel)+1:
+                        for k in range(len(raw_epochSettings)-1, len(detectionSettingsLabel)):
+                            raw_epochSettings[k] = ['Tone', True, 'shock', '0,0,0,False']
+
                     sheetWindow.close()
                     break
                 if sheet_event == 'SheetNameHelp':
@@ -515,13 +533,7 @@ if __name__ == '__main__':
             sheetlist, detectionSettingsLabel, trialTypeFull_list, trialType_list, epochNum_list = parseSheetSettings(raw_sheetSettings)
             epochLabel, derivedEpoch_list, derivedEpochTiming_list = parseEpochSettings(raw_epochSettings)
             trialID_epochMenu = 0
-            # tmp1 = raw_epochSettings[2].split(',')
-            # for i in range(0,len(tmp1)):
-            #     tmp1[i] = tmp1[i].lstrip()
-            # dEpochName = tmp1
-            # dEpochTime = []
-            # for iter01 in range(0,len(derivedEpochTiming_list[trialID_epochMenu])):
-                # dEpochTime.append(raw_epochSettings[iter01])
+
             epochCol = [
                         [sg.Text('Trial Type'),sg.Combo(detectionSettingsLabel, default_value = detectionSettingsLabel[trialID_epochMenu], enable_events=True, key='TrialSelectDropdown')],
                         [sg.Text('Epoch Base Label', size=(20,1)), sg.Input(settingToString(epochLabel[trialID_epochMenu]), size=(40,1)), sg.Button('Help', key='EpochHelp')],
@@ -539,11 +551,13 @@ if __name__ == '__main__':
             while True:
                 epoch_event, epoch_values = epochWindow.read()
                 # print(epoch_event)
-                # print(epoch_values)
+                print(epoch_values)
                 # print(len(epoch_values))
                 # print(epoch_values[range(0,len(epoch_values))])
 
                 if epoch_event == 'TrialSelectDropdown':
+                    epochLabel, derivedEpoch_list, derivedEpochTiming_list = parseEpochSettings(raw_epochSettings)
+                    sheetlist, detectionSettingsLabel, trialTypeFull_list, trialType_list, epochNum_list = parseSheetSettings(raw_sheetSettings)
                     for i in range(0,len(detectionSettingsLabel)):
                         # print(detectionSettingsLabel[i])
                         if(epoch_values['TrialSelectDropdown']==detectionSettingsLabel[i]):
@@ -551,6 +565,9 @@ if __name__ == '__main__':
                             epochLabel, derivedEpoch_list, derivedEpochTiming_list = parseEpochSettings(raw_epochSettings)
                             sheetlist, detectionSettingsLabel, trialTypeFull_list, trialType_list, epochNum_list = parseSheetSettings(raw_sheetSettings)
 
+
+                            # print(epochLabel)
+                            #print(trialID_epochMenu)
                             epochCol = [
                                         [sg.Text('Trial Type'),sg.Combo(detectionSettingsLabel, default_value = detectionSettingsLabel[trialID_epochMenu], enable_events=True, key='TrialSelectDropdown')],
                                         [sg.Text('Epoch Base Label', size=(20,1)), sg.Input(settingToString(epochLabel[trialID_epochMenu]), size=(40,1)), sg.Button('Help', key='EpochHelp')],
@@ -581,7 +598,9 @@ if __name__ == '__main__':
                         else:
                             raw_epochSettings[trialID_epochMenu].append((epoch_values[k]))
                             raw_epochSettings[trialID_epochMenu].append('0,0,0,False')
-
+                    # tmp = raw_epochSettings[trialID_epochMenu][2].split(', ')
+                    # for k in range(0,len(tmp)):
+                    #     raw_epochSettings[trialID_epochMenu][3+k] = '0,0,0,False'
 
                     break
                 if epoch_event == 'Apply':	# if user clicks Apply to update the window
@@ -594,6 +613,11 @@ if __name__ == '__main__':
                             raw_epochSettings[trialID_epochMenu][k] = (epoch_values[k])
                         else:
                             raw_epochSettings[trialID_epochMenu].append((epoch_values[k]))
+                            raw_epochSettings[trialID_epochMenu][3+k] = '0,0,0,False'
+
+                    tmp = raw_epochSettings[trialID_epochMenu][2].split(', ')
+                    if len(tmp) > len(raw_epochSettings[trialID_epochMenu])-3:
+                        for k in range(0,len(tmp)):
                             raw_epochSettings[trialID_epochMenu].append('0,0,0,False')
 
                     # print('Test epochValues')

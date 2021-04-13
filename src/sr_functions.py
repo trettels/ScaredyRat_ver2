@@ -277,16 +277,10 @@ def get_darting(datadict, ntones, dartThreshold, binSecs):
     return(darting, dartingTimes)
 
 def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs, epochLabel, printSettings, printLabels):
-    colormap = [  [1/256,  25/256,  89/256],
-                [16/256,  63/256,  96/256],
-                [28/256,  90/256,  98/256],
-                [60/256, 109/256, 86/256],
-                [104/256, 123/256, 62/256],
-                [157/256, 137/256, 43/256],
-                [210/256, 147/256, 67/256],
-                [248/256, 161/256, 123/256],
-                [253/256, 183/256, 188/256],
-                [250/256, 204/256, 250/256,]  ]
+    colormap = [  [245/256, 121/256, 58/256],
+                [169/256,  90/256,  161/256],
+                [133/256,  192/256,  249/256],
+                [15/256, 32/256, 128/256]  ]
     
                 # [ [26/256,  14/256,  52/256],
                 # [69/256,  32/256,  76/256],
@@ -334,7 +328,7 @@ def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs, 
         # print(bool(printSettings[i][3]))
         if(printSettings[i][3] == 'False'):
             continue
-        c_num = i % 10
+        c_num = i % 4
         hasShock = True
         for j in range(0,ntones):
             response = find_delim_vels(anim,j,epochLabel,printSettings[i])
