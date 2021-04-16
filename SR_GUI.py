@@ -594,22 +594,44 @@ if __name__ == '__main__':
                 if epoch_event == 'AddEpoch':
                     raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['NewEpoch']] = {'Label': epoch_values['NewEpoch'], 'UseSpace': epoch_values['UseSpace'], 'SubEpochs': {'Shock': '-1,0,5,True'}}
                 
+                      epochCol = [
+                                [sg.Text('Trial Type'),sg.Combo(detectionSettingsLabel, default_value = epoch_values['TrialSelectDropdown'], enable_events=True, key='TrialSelectDropdown')],
+                                [sg.Text('Epoch label to add', size=(20,1)), sg.Input(''), size=(40,1)), sg.CBox('Space Present',pad=(180,0), default=True) , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
+                                [sg.Text('Epoch Label'),sg.Combo(raw_epochSettings[epoch_values['TrialSelectDropdown']].keys()), enable_events=True, key='EpochSelectDropdown')],
+                                [sg.Text('')],
+                                [sg.Text('Derived Epoch List', size=(20,1)), sg.Input(settingToString(raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['EpochSelectDropdown']]['SubEpochs'].keys()), size=(40,1)), sg.Button('Help', key='dEpochHelp')],
+                                [sg.Text('Derived Epoch Timing:')],
+                                # [sg.Text('')] ] + [dEpochTimeEntry(derivedEpoch_list[trialID_epochMenu][iter],derivedEpochTiming_list[trialID_epochMenu][iter]) for iter in range(0,len(derivedEpoch_list[trialID_epochMenu]))]
+                                [sg.Text('')]] + [dEpochTimeEntry(iter_key, iter_val) for iter_key, iter_val in raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['EpochSelectDropdown']]['SubEpochs'].items()] 
+                    layout_EpochWin = [ [sg.Text('Epoch Information')],
+                                        [sg.Column(epochCol)],
+                                        [sg.Button('Apply'), sg.Button('Ok'), sg.Button('Cancel')] ]
+                   
+                    epochWindow.close()
+                    epochWindow = sg.Window('Epoch Settings', layout_EpochWin)
+                    
+                    
                 if epoch_event == 'DelEpoch':
                    del raw_epochSettings[epoch_values['TrialSelecDropdown']][epoch_values['EpochSelectDropdown']]   
                 
-                if epoch_event == 'EpochSelectDropdown'
-                    # for i in range(0,len(detectionSettingsLabel)):
-                        # print(detectionSettingsLabel[i])
-                        # if(epoch_values['EpochSelectDropdown']==epoch_dict[[i]):
-                            # epochID = i
-                            
-                        # tcs_keys, epoch_dict, sub_epoch_dicts = parseEpochSettings(raw_epochSettings)  #epochLabel, derivedEpoch_list, derivedEpochTiming_list = parseEpochSettings(raw_epochSettings)
-                        # sheetlist, detectionSettingsLabel, trialTypeFull_list, trialType_list, epochNum_list = parseSheetSettings(raw_sheetSettings)
-
-
-                        # print(epochLabel)
-                        #print(trialID_epochMenu)
-                        
+                    epochCol = [
+                                [sg.Text('Trial Type'),sg.Combo(detectionSettingsLabel, default_value = epoch_values['TrialSelectDropdown'], enable_events=True, key='TrialSelectDropdown')],
+                                [sg.Text('Epoch label to add', size=(20,1)), sg.Input(''), size=(40,1)), sg.CBox('Space Present',pad=(180,0), default=True) , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
+                                [sg.Text('Epoch Label'),sg.Combo(raw_epochSettings[epoch_values['TrialSelectDropdown']].keys()), enable_events=True, key='EpochSelectDropdown')],
+                                [sg.Text('')],
+                                [sg.Text('Derived Epoch List', size=(20,1)), sg.Input(settingToString(raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['EpochSelectDropdown']]['SubEpochs'].keys()), size=(40,1)), sg.Button('Help', key='dEpochHelp')],
+                                [sg.Text('Derived Epoch Timing:')],
+                                # [sg.Text('')] ] + [dEpochTimeEntry(derivedEpoch_list[trialID_epochMenu][iter],derivedEpochTiming_list[trialID_epochMenu][iter]) for iter in range(0,len(derivedEpoch_list[trialID_epochMenu]))]
+                                [sg.Text('')]] + [dEpochTimeEntry(iter_key, iter_val) for iter_key, iter_val in raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['EpochSelectDropdown']]['SubEpochs'].items()] 
+                    layout_EpochWin = [ [sg.Text('Epoch Information')],
+                                        [sg.Column(epochCol)],
+                                        [sg.Button('Apply'), sg.Button('Ok'), sg.Button('Cancel')] ]
+                   
+                    epochWindow.close()
+                    epochWindow = sg.Window('Epoch Settings', layout_EpochWin)
+                    
+                    
+                if epoch_event == 'EpochSelectDropdown' 
                     epochCol = [
                                 [sg.Text('Trial Type'),sg.Combo(detectionSettingsLabel, default_value = epoch_values['TrialSelectDropdown'], enable_events=True, key='TrialSelectDropdown')],
                                 [sg.Text('Epoch label to add', size=(20,1)), sg.Input(''), size=(40,1)), sg.CBox('Space Present',pad=(180,0), default=True) , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
@@ -627,15 +649,6 @@ if __name__ == '__main__':
                     epochWindow = sg.Window('Epoch Settings', layout_EpochWin)
                 
                 if epoch_event == 'TrialSelectDropdown':
-                    # tcs_keys, epoch_dict, sub_epoch_dicts = parseEpochSettings(raw_epochSettings)  #epochLabel, derivedEpoch_list, derivedEpochTiming_list = parseEpochSettings(raw_epochSettings)
-                    # sheetlist, detectionSettingsLabel, trialTypeFull_list, trialType_list, epochNum_list = parseSheetSettings(raw_sheetSettings)
-                    # for i in range(0,len(detectionSettingsLabel)):
-                        # print(detectionSettingsLabel[i])
-                        # tcs_keys, epoch_dict, sub_epoch_dicts = parseEpochSettings(raw_epochSettings)  #epochLabel, derivedEpoch_list, derivedEpochTiming_list = parseEpochSettings(raw_epochSettings)
-                        # sheetlist, detectionSettingsLabel, trialTypeFull_list, trialType_list, epochNum_list = parseSheetSettings(raw_sheetSettings)
-                        # print(epochLabel)
-                        #print(trialID_epochMenu)
-                        
                     epochCol = [
                                 [sg.Text('Trial Type'),sg.Combo(detectionSettingsLabel, default_value = epoch_values['TrialSelectDropdown'], enable_events=True, key='TrialSelectDropdown')],
                                 [sg.Text('Epoch label to add', size=(20,1)), sg.Input(''), size=(40,1)), sg.CBox('Space Present',pad=(180,0), default=True) , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
@@ -654,8 +667,9 @@ if __name__ == '__main__':
 
 
                 if epoch_event == sg.WIN_CLOSED or epoch_event == 'Cancel':	# if user closes window or clicks cancel
-
                     break
+                    
+                    
                 if epoch_event == 'Ok':	# if user clicks Ok
                     # raw_epochSettings[trialID_epochMenu] = epoch_values
                     if(len(epoch_values) < len(raw_epochSettings[trialID_epochMenu])):
