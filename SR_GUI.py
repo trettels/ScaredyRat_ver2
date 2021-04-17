@@ -177,6 +177,7 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
     binSize, baselineDuration, freezeThresh, dartThresh = parseTrialSettings(raw_trial_settings)
 
     epochLabel_list, derivedEpoch_list_list, derivedEpochTiming_list_list = parseEpochSettings(raw_epoch_settings)
+    ##rewrite this after the correct trial control settings have been determined using list(dict)
 
     ## Search the inpath for files
     filelist = []
