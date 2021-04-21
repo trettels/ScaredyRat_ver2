@@ -71,6 +71,7 @@ def find_delim_vels(df,ndelim,epoch,delim_times):  #(df, i):
     # print(delim_times)
     # print(' ')
     delimidx = tone.iloc[int(delim_times[0])] #Time for tone start
+    print(delim_times)
     sto = int(delim_times[1])
     eto = int(delim_times[2])
     starttime = math.floor(delimidx['Recording time']+sto) #Time for pretone start
@@ -318,7 +319,8 @@ def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs, 
         line2, = plt.plot(tone,color='c',linewidth=0.5,label=epochLabel.strip())  
         i += 1
         hasTone = True
-    handle_list.append(line2)
+    if ntones > 0:
+        handle_list.append(line2)
     # print('Trying to plot, 3')
     # Loops through shocks, plots each one in magenta
     line3=[]
@@ -334,7 +336,8 @@ def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs, 
             response = find_delim_vels(anim,j,epochLabel,printSettings[i])
             line_tmp, = plt.plot(response,color=colormap[c_num],linewidth=0.5,label=printLabels[i])
             
-        handle_list.append(line_tmp)    
+        if 'line_tmp' in locals():
+            handle_list.append(line_tmp)    
     # print('Trying to plot, 4')
     # i = 0
     # hasShock = False
@@ -363,7 +366,7 @@ def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs, 
     sns.despine(left=True, bottom=True, right=True)
     plt.title(ID + " " + trialTypeFull)
 
-    plt.legend(handles=handle_list, loc='upper right')
+    plt.legend(handles=handle_list, loc='upper left')
     
     plt.ylabel('Velocity (cm/s)')
     plt.xlabel('Trial time (s)')
