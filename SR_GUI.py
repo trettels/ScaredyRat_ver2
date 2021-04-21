@@ -440,7 +440,8 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
             dartOutFile=dartOutFile.format(ID)
             allDart.to_csv(dartOutFile)
 
-    for k in range(0,len(trialType_list)):
+    ##Need to fix.  Nested iterators? Need to compile freezing and darting spreadsheets for each trial-epoch-subepoch sequence
+    for k in range(0,len(trialType_list)):  # Should produce darting and freezing files for each trial type x epoch x sub-epoch
         srf.compile_SR(trialType_list[k],epochLabel_list[k][0],epochNum_list[k], len(derivedEpoch_list_list[k]), derivedEpoch_list_list[k], 'Darting', outpath, outpath2)
         srf.compile_SR(trialType_list[k],epochLabel_list[k][0],epochNum_list[k], len(derivedEpoch_list_list[k]), derivedEpoch_list_list[k], 'Freezing', outpath, outpath2)
 
