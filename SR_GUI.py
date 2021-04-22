@@ -442,11 +442,21 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
 
     ##Need to fix.  Nested iterators? Need to compile freezing and darting spreadsheets for each trial-epoch-subepoch sequence
     for k in range(0,len(trialType_list)):  # Should produce darting and freezing files for each trial type x epoch x sub-epoch
-        srf.compile_SR(trialType_list[k],epochLabel_list[k][0],epochNum_list[k], len(derivedEpoch_list_list[k]), derivedEpoch_list_list[k], 'Darting', outpath, outpath2)
-        srf.compile_SR(trialType_list[k],epochLabel_list[k][0],epochNum_list[k], len(derivedEpoch_list_list[k]), derivedEpoch_list_list[k], 'Freezing', outpath, outpath2)
+    
+        for epoch_iter in raw_epochSettings{detectionSettingsLabel[k]}:
+            srf.compile_SR(trialTypeList[k], epoch_iter, epoch_ct, 1, [epoch_iter],'Darting',outpath,outpath2)
+            srf.compile_SR(trialTypeList[k], epoch_iter, epoch_ct, 1, [epoch_iter],'Freezing',outpath,outpath2)
+            
+            for dEpoch_iter in raw_epochSettings{detectionSettingsLabel[k]}{epoch_iter}:
+                epoch_ct = int(raw_epochSettings[detectionSettingsLabel[k][epoch_iter]['EpochCount'])
+                srf.compile_SR(trialTypeList[k], epoch_iter, epoch_ct, 1, [dEpoch_iter],'Darting',outpath,outpath2)
+                srf.compile_SR(trialTypeList[k], epoch_iter, epoch_ct, 1, [dEpoch_iter],'Freezing',outpath,outpath2)
+        
+        # srf.compile_SR(trialType_list[k],epochLabel_list[k][0],epochNum_list[k], len(derivedEpoch_list_list[k]), derivedEpoch_list_list[k], 'Darting', outpath, outpath2)
+        # srf.compile_SR(trialType_list[k],epochLabel_list[k][0],epochNum_list[k], len(derivedEpoch_list_list[k]), derivedEpoch_list_list[k], 'Freezing', outpath, outpath2)
 
-        srf.compile_SR(trialType_list[k],epochLabel_list[k][0],epochNum_list[k], len(epochLabel_list[k]), epochLabel_list[k], 'Darting', outpath, outpath2)
-        srf.compile_SR(trialType_list[k],epochLabel_list[k][0],epochNum_list[k], len(epochLabel_list[k]), epochLabel_list[k], 'Freezing', outpath, outpath2)
+        # srf.compile_SR(trialType_list[k],epochLabel_list[k][0],epochNum_list[k], len(epochLabel_list[k]), epochLabel_list[k], 'Darting', outpath, outpath2)
+        # srf.compile_SR(trialType_list[k],epochLabel_list[k][0],epochNum_list[k], len(epochLabel_list[k]), epochLabel_list[k], 'Freezing', outpath, outpath2)
         srf.compile_BaselineSR(trialType_list[k],outpath, outpath2)
 
 ################################################################################################
