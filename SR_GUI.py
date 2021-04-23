@@ -444,11 +444,11 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
     for k in range(0,len(trialType_list)):  # Should produce darting and freezing files for each trial type x epoch x sub-epoch
     
         for epoch_iter in raw_epochSettings{detectionSettingsLabel[k]}:
+            epoch_ct = int(raw_epochSettings[detectionSettingsLabel[k][epoch_iter]['EpochCount'])
             srf.compile_SR(trialTypeList[k], epoch_iter, epoch_ct, 1, [epoch_iter],'Darting',outpath,outpath2)
             srf.compile_SR(trialTypeList[k], epoch_iter, epoch_ct, 1, [epoch_iter],'Freezing',outpath,outpath2)
             
-            for dEpoch_iter in raw_epochSettings{detectionSettingsLabel[k]}{epoch_iter}:
-                epoch_ct = int(raw_epochSettings[detectionSettingsLabel[k][epoch_iter]['EpochCount'])
+            for dEpoch_iter in raw_epochSettings{detectionSettingsLabel[k]}{epoch_iter}{'SubEpochs'}:
                 srf.compile_SR(trialTypeList[k], epoch_iter, epoch_ct, 1, [dEpoch_iter],'Darting',outpath,outpath2)
                 srf.compile_SR(trialTypeList[k], epoch_iter, epoch_ct, 1, [dEpoch_iter],'Freezing',outpath,outpath2)
         
