@@ -54,7 +54,7 @@ layout_MainWindow = [ [sg.Text('Main Window.\nUse buttons to navigate ScaredyRat
                 [sg.Button('View Settings')],
                 [sg.Text('')],
                 [sg.Button('Run')],
-                # [sg.Button('Compile Only')],
+                [sg.Button('Compile Only')],
                 [sg.Text('')],
                 [sg.Button('Exit')]]
 ################################################################################################
@@ -268,6 +268,8 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
                     derivedEpochTiming_list.append(list(map(str.strip,v.split(','))))
                     # derivedEpochTiming_list.append(list(map(str.strip, v)))
                 nEpochEvents = int(raw_epochSettings[trialType_key][epochLabel[i]]['EpochCount'])
+                if nEpochEvents==0:
+                    continue
                 isSpace = raw_epochSettings[trialType_key][epochLabel[i]]['UseSpace']
                 if isSpace:
                     epochLabel[i] = epochLabel[i].strip() + ' '
@@ -278,7 +280,7 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
                 # print('EPC')
                 # print(epc)
                 #Epoch max velocity
-                epoch_maxVel.append(srf.get_top_vels(epc,1,nEpochEvents))#
+                epoch_maxVel.append(srf.get_top_vels(epc,1,epochLabel[i],nEpochEvents))#
                 # print('EPC')
                 # print(epc)
                 # print(nEpochEvents)
@@ -340,7 +342,7 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
                     #Get derived-epoch data frame
                     dEpoch_df = srf.find_delim_based_time(anim, nEpochEvents, epochLabel[i], int(derivedEpochTiming_list[m][0]), int(derivedEpochTiming_list[m][1]), int(derivedEpochTiming_list[m][2]))
                     #Derived-epoch max velocity
-                    dEpoch_maxVel[i].append(srf.get_top_vels(dEpoch_df,1,nEpochEvents))#
+                    dEpoch_maxVel[i].append(srf.get_top_vels(dEpoch_df,1,epochLabel[i],nEpochEvents))#
                     dEpoch_maxVel_file = outpath + '/' + trialType + '-' + epochLabel[i] + '_' + derivedEpoch_list[m] + '-max-vels-{}.csv'
                     dEpoch_maxVel_file = dEpoch_maxVel_file.format(ID)
                     dEpoch_maxVel[i][m].to_csv(dEpoch_maxVel_file)
@@ -380,13 +382,22 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
                     #Derived-epoch Plots
                     # srf.plot_outputs(anim, ID, trialTypeFull, outpath, trialType, nEpochEvents, dEpochFTs[i][m], dEpochDTs[i][m])  #Needs to be updated to insert
 
+            allMaxes = pd.DataFrame()
+            for i in range(0,len(epoch_maxVel)):
+                allMaxes = pd.concat([allMaxes,epoch_maxVel[i]], axis=1)
+                for j in range(0,len(dEpoch_maxVel[i])):
+                    allMaxes = pd.concat([allMaxes, dEpoch_maxVel[i][j]],axis=1)
+
+            maxOutFile = outpath + '/' + trialType + '-max-vels-{}.csv'
+            maxOutFile=maxOutFile.format(ID)
+            allMaxes.to_csv(maxOutFile)
             #Concatinate the full mean file per-animal
             # print(dEpoch_meanVel[0][0])
             # print('m=1')
             # print(dEpoch_meanVel[0][1])
             # print('m=2')
             # print(dEpoch_meanVel[0][2])
-            allMeans = pd.concat([epoch_meanVel[0]], axis=1)
+            allMeans = pd.DataFrame()
             for i in range(0,len(epoch_meanVel)):
                 allMeans = pd.concat([allMeans,epoch_meanVel[i]], axis=1)
                 for j in range(0,len(dEpoch_meanVel[i])):
@@ -398,7 +409,7 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
 
             #Concatinate the full median file per-animal
             # allMedians = pd.concat([epoch_medVel, dEpoch_medVel],axis=1)
-            allMedians = pd.concat([epoch_medVel[0]], axis=1)
+            allMedians = pd.DataFrame()
             for i in range(0,len(epoch_medVel)):
                 allMedians = pd.concat([allMedians,epoch_medVel[i]], axis=1)
                 for j in range(0,len(dEpoch_medVel[i])):
@@ -409,7 +420,7 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
 
             #Concatinate the full SEM file per-animal
             # allsem = pd.concat([epoch_semVel, dEpoch_semVel],axis=1)
-            allsem = pd.concat([epoch_semVel[0]], axis=1)
+            allsem = pd.DataFrame()
             for i in range(0,len(epoch_semVel)):
                 allsem = pd.concat([allsem,epoch_semVel[i]], axis=1)
                 for j in range(0,len(dEpoch_semVel[i])):
@@ -420,7 +431,7 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
 
             #Concatinate the full freezing file per-animal
             # allFreeze = pd.concat([epochFreezing, dEpochFreezing],axis=1)
-            allFreeze = pd.concat([epochFreezing[0]], axis=1)
+            allFreeze = pd.DataFrame()
             for i in range(0,len(epochFreezing)):
                 allFreeze = pd.concat([allFreeze,epochFreezing[i]], axis=1)
                 for j in range(0,len(dEpochFreezing[i])):
@@ -431,7 +442,7 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
 
             #Concatinate the full darting file per-animal
             # allDart = pd.concat([epochDarting, dEpochDarting],axis=1)
-            allDart = pd.concat([epochDarting[0]], axis=1)
+            allDart = pd.DataFrame()
             for i in range(0,len(epochDarting)):
                 allDart = pd.concat([allDart,epochDarting[i]], axis=1)
                 for j in range(0,len(dEpochDarting[i])):
@@ -442,22 +453,25 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
 
     ##Need to fix.  Nested iterators? Need to compile freezing and darting spreadsheets for each trial-epoch-subepoch sequence
     for k in range(0,len(trialType_list)):  # Should produce darting and freezing files for each trial type x epoch x sub-epoch
-    
-        for epoch_iter in raw_epochSettings{detectionSettingsLabel[k]}:
-            epoch_ct = int(raw_epochSettings[detectionSettingsLabel[k][epoch_iter]['EpochCount'])
-            srf.compile_SR(trialTypeList[k], epoch_iter, epoch_ct, 1, [epoch_iter],'Darting',outpath,outpath2)
-            srf.compile_SR(trialTypeList[k], epoch_iter, epoch_ct, 1, [epoch_iter],'Freezing',outpath,outpath2)
-            
-            for dEpoch_iter in raw_epochSettings{detectionSettingsLabel[k]}{epoch_iter}{'SubEpochs'}:
-                srf.compile_SR(trialTypeList[k], epoch_iter, epoch_ct, 1, [dEpoch_iter],'Darting',outpath,outpath2)
-                srf.compile_SR(trialTypeList[k], epoch_iter, epoch_ct, 1, [dEpoch_iter],'Freezing',outpath,outpath2)
-        
+
+        srf.compile_BaselineSR(trialType_list[k],outpath, outpath2)
+
+        for epoch_iter in raw_epochSettings[detectionSettingsLabel[k]]:
+            epoch_ct = int(raw_epochSettings[detectionSettingsLabel[k]][epoch_iter]['EpochCount'])
+            if(epoch_ct==0):
+                continue;
+            srf.compile_SR(trialType_list[k], epoch_iter, epoch_ct, 1, [epoch_iter],'Darting',outpath,outpath2)
+            srf.compile_SR(trialType_list[k], epoch_iter, epoch_ct, 1, [epoch_iter],'Freezing',outpath,outpath2)
+
+            for dEpoch_iter in raw_epochSettings[detectionSettingsLabel[k]][epoch_iter]['SubEpochs']:
+                srf.compile_SR(trialType_list[k], epoch_iter, epoch_ct, 1, [dEpoch_iter],'Darting',outpath,outpath2)
+                srf.compile_SR(trialType_list[k], epoch_iter, epoch_ct, 1, [dEpoch_iter],'Freezing',outpath,outpath2)
+
         # srf.compile_SR(trialType_list[k],epochLabel_list[k][0],epochNum_list[k], len(derivedEpoch_list_list[k]), derivedEpoch_list_list[k], 'Darting', outpath, outpath2)
         # srf.compile_SR(trialType_list[k],epochLabel_list[k][0],epochNum_list[k], len(derivedEpoch_list_list[k]), derivedEpoch_list_list[k], 'Freezing', outpath, outpath2)
 
         # srf.compile_SR(trialType_list[k],epochLabel_list[k][0],epochNum_list[k], len(epochLabel_list[k]), epochLabel_list[k], 'Darting', outpath, outpath2)
         # srf.compile_SR(trialType_list[k],epochLabel_list[k][0],epochNum_list[k], len(epochLabel_list[k]), epochLabel_list[k], 'Freezing', outpath, outpath2)
-        srf.compile_BaselineSR(trialType_list[k],outpath, outpath2)
 
 ################################################################################################
 ## Execution
@@ -700,8 +714,8 @@ if __name__ == '__main__':
 
                 if epoch_event == sg.WIN_CLOSED or epoch_event == 'Cancel':	# if user closes window or clicks cancel
                     break
-                    
-                    
+
+
                 if epoch_event == 'Ok':	# if user clicks Ok
                     # print(epoch_values)
                     raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['EpochSelectDropdown']]['EpochCount'] = epoch_values['nEpochs']
@@ -787,16 +801,33 @@ if __name__ == '__main__':
             print(raw_epochSettings)
             run_SR(inpath, outpath, raw_sheetSettings, raw_trialSettings, raw_epochSettings)
             sg.popup('ScaredyRat Complete')
-        # elif event == 'Compile Only':
-            # sheetlist, detectionSettingsLabel, trialTypeFull_list, trialType_list, epochNum_list = parseSheetSettings(raw_sheetSettings)
-            # binSize, baselineDuration, freezeThresh, dartThresh = parseTrialSettings(raw_trialSettings)
-            # tcs_keys, epoch_dict, sub_epoch_dicts = parseEpochSettings(raw_epochSettings) #epochLabel, derivedEpoch_list, derivedEpochTiming_list = parseEpochSettings(raw_epochSettings)
-            # for k in range(0,len(trialType_list)):
-                # srf.compile_SR(trialType_list[k],epochLabel[k][0],epochNum_list[k], len(derivedEpoch_list[k]), derivedEpoch_list[k], 'Darting', outpath, outpath2)
-                # srf.compile_SR(trialType_list[k],epochLabel[k][0],epochNum_list[k], len(derivedEpoch_list[k]), derivedEpoch_list[k], 'Freezing', outpath, outpath2)
+        elif event == 'Compile Only':
+        #     sheetlist, detectionSettingsLabel, trialTypeFull_list, trialType_list, epochNum_list = parseSheetSettings(raw_sheetSettings)
+        #     binSize, baselineDuration, freezeThresh, dartThresh = parseTrialSettings(raw_trialSettings)
+        #     tcs_keys, epoch_dict, sub_epoch_dicts = parseEpochSettings(raw_epochSettings) #epochLabel, derivedEpoch_list, derivedEpochTiming_list = parseEpochSettings(raw_epochSettings)
+        #     for k in range(0,len(trialType_list)):
+        #         srf.compile_SR(trialType_list[k],epochLabel[k][0],epochNum_list[k], len(derivedEpoch_list[k]), derivedEpoch_list[k], 'Darting', outpath, outpath2)
+        #         srf.compile_SR(trialType_list[k],epochLabel[k][0],epochNum_list[k], len(derivedEpoch_list[k]), derivedEpoch_list[k], 'Freezing', outpath, outpath2)
+        #
+        #         srf.compile_SR(trialType_list[k],epochLabel[k][0],epochNum_list[k], len(epochLabel[k]), epochLabel[k], 'Darting', outpath, outpath2)
+        #         srf.compile_SR(trialType_list[k],epochLabel[k][0],epochNum_list[k], len(epochLabel[k]), epochLabel[k], 'Freezing', outpath, outpath2)
+        #         srf.compile_BaselineSR(trialType_list[k],outpath, outpath2)
+        #     sg.popup('Compile Complete')
+            sheetlist, detectionSettingsLabel, trialTypeFull_list, trialType_list = parseSheetSettings(raw_sheetSettings)
 
-                # srf.compile_SR(trialType_list[k],epochLabel[k][0],epochNum_list[k], len(epochLabel[k]), epochLabel[k], 'Darting', outpath, outpath2)
-                # srf.compile_SR(trialType_list[k],epochLabel[k][0],epochNum_list[k], len(epochLabel[k]), epochLabel[k], 'Freezing', outpath, outpath2)
-                # srf.compile_BaselineSR(trialType_list[k],outpath, outpath2)
-            # sg.popup('Compile Complete')
+            for k in range(0,len(trialType_list)):  # Should produce darting and freezing files for each trial type x epoch x sub-epoch
+
+                srf.compile_BaselineSR(trialType_list[k],outpath, outpath2)
+
+                for epoch_iter in raw_epochSettings[detectionSettingsLabel[k]]:
+                    epoch_ct = int(raw_epochSettings[detectionSettingsLabel[k]][epoch_iter]['EpochCount'])
+                    if(epoch_ct==0):
+                        continue;
+                    srf.compile_SR(trialType_list[k], epoch_iter, epoch_ct, 1, [epoch_iter],'Darting',outpath,outpath2)
+                    srf.compile_SR(trialType_list[k], epoch_iter, epoch_ct, 1, [epoch_iter],'Freezing',outpath,outpath2)
+
+                    for dEpoch_iter in raw_epochSettings[detectionSettingsLabel[k]][epoch_iter]['SubEpochs']:
+                        srf.compile_SR(trialType_list[k], epoch_iter, epoch_ct, 1, [dEpoch_iter],'Darting',outpath,outpath2)
+                        srf.compile_SR(trialType_list[k], epoch_iter, epoch_ct, 1, [dEpoch_iter],'Freezing',outpath,outpath2)
+            sg.popup('Compile Complete')
     mainWindow.close()

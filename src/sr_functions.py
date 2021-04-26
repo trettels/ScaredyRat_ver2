@@ -450,12 +450,13 @@ def get_vels(df, ntones):
         i += 1
     return(tonevels)
 
-def get_top_vels(datadict,nmax, ntones):
+def get_top_vels(datadict, nmax, binlabel, ntones):
     '''
     Returns dataframe of nmax (int) maximum velocities for a timebin.
     The second section adds a column for an average of the maxima.
     '''
     nmaxes = pd.DataFrame()
+    col_list=[]
     i = 0
     while i < ntones:
         epoch = datadict[i]
@@ -469,14 +470,17 @@ def get_top_vels(datadict,nmax, ntones):
             topvels = pd.DataFrame([vlist[-1]])
         else:
             topvels = pd.DataFrame([vlist[-nmax:-1]])
-        nmaxes = nmaxes.append(topvels)
+        nmaxes= nmaxes.append(topvels)
+        col_list.append(binlabel + str(i) + ' Max Velocity')
         i += 1
-
-    nmaxes.index = np.arange(1, nmaxes.shape[0] + 1)
-    nmaxes.columns = np.arange(1, nmaxes.shape[1] + 1)
-
-    nmaxes['Mean'] = nmaxes.mean(axis = 1)
-
+    if nmax > 1:
+        nmaxes.index = np.arange(1, nmaxes.shape[0] + 1)
+        nmaxes.columns = np.arange(1, nmaxes.shape[1] + 1)
+    
+        nmaxes['Avg Max'] = nmaxes.mean(axis = 1)
+    else:
+        # nmaxes.index = col_list
+        nmaxes.columns = ['Max Velocity']
     return(nmaxes)
     
 def get_anim(csv, n):
@@ -497,7 +501,7 @@ def scaredy_find_csvs(csv_dir, prefix):
 
     return(csvlist)
 
-def concat_data(means, SEMs, meds, ntones):
+def concat_data(means, SEMs, meds, maxes, ntones):
     allData = pd.DataFrame()
     ix = []
     for n in range(ntones):
@@ -512,6 +516,10 @@ def concat_data(means, SEMs, meds, ntones):
         if meds.empty: continue
         allData = allData.append(meds.iloc[:,n])       
         ix.append('Tone {} Median'.format(n+1))
+    for n in range(ntones):     
+        if maxes.empty: continue
+        allData = allData.append(maxes.iloc[:,n])       
+        ix.append('Tone {} Max'.format(n+1))
 
     allData.index = ix
     allData = allData.transpose()
@@ -535,7 +543,7 @@ def concat_all_max(csvlist):
     for csv in csvlist:
         anim = get_anim(csv,-2)
         df = pd.read_csv(csv,index_col=0)
-        meanMax = pd.DataFrame({anim: df['Mean']}).T
+        meanMax = pd.DataFrame({anim: df['Avg Max']}).T
         maxes = pd.concat([maxes, meanMax])
 
     return(maxes)
@@ -587,6 +595,7 @@ def compile_SR(trialType, epochLabel, numEpoch, num_dEpoch,dEpoch_list, behavior
     # print(inpath+trialType + '-mean')
     # print(meanCSVs)
     medCSVs = scaredy_find_csvs(inpath,trialType + '-median')
+    maxCSVs = scaredy_find_csvs(inpath,trialType + '-max')
     SEMCSVs = scaredy_find_csvs(inpath,trialType + '-SEM')
     num_dEpoch = len(dEpoch_list)
     # print(dEpoch_list)
@@ -606,17 +615,17 @@ def compile_SR(trialType, epochLabel, numEpoch, num_dEpoch,dEpoch_list, behavior
         # print(epochLabel[0])
         # print(trialType)
         # print(dEpoch_list[i])
-        maxCSVs = scaredy_find_csvs(inpath, trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-max')
-        maxData = concat_all_darting(maxCSVs,1)
-        outfile = os.path.join(outpath, 'All-'+ trialType + '-' + dEpoch_list[i] + '-' + 'MaxVel' + '.csv' )
-        maxData.to_csv(outfile)
+        # maxdECSVs = scaredy_find_csvs(inpath, trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-max')
+        # maxData = concat_all_darting(maxdECSVs,1)
+        # outfile = os.path.join(outpath, 'All-'+ trialType + '-' + dEpoch_list[i] + '-' + 'MaxVel' + '.csv' )
+        # maxData.to_csv(outfile)
         
         
-        
+        maxes = compress_data(maxCSVs,i)
         means = compress_data(meanCSVs,i)
         meds = compress_data(medCSVs,i)
         SEMs = compress_data(SEMCSVs,i)
-        allData = concat_data(means,SEMs,meds,numEpoch)
+        allData = concat_data(means,SEMs,meds,maxes,numEpoch)
         outfile = os.path.join(outpath,'All-'+ trialType + '-' +dEpoch_list[i] + '-VelocitySummary.csv')
         allData.to_csv(outfile)
     
