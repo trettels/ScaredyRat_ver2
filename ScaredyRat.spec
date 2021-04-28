@@ -1,13 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+
 block_cipher = None
 
 
 a = Analysis(['SR_GUI.py', 'src\\sr_functions.py'],
-             pathex=['./src', 'D:\\Work\\Code\\PYTHON\\ScaredyRat_2\\ScaredyRat_ver2'],
+             pathex=['./src', 'D:\\GITHUB\\ScaredyRat_ver2'],
              binaries=[],
              datas=[],
-             hiddenimports=['tkinter'],
+             hiddenimports=['tkinter,scipy,numpy,pandas,matplotlib,seaborn,PySimpleGUI'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],
@@ -30,4 +31,4 @@ exe = EXE(pyz,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=False )
+          console=True )

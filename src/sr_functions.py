@@ -9,7 +9,7 @@ import math
 import time
 import PySimpleGUI as sg
 
-print = sg.Print # Set print to go to a window rather than the terminal
+# print = sg.Print # Set print to go to a window rather than the terminal
 
 def animal_read(inpath, filename, sheet):
     '''
@@ -26,15 +26,16 @@ def animal_read(inpath, filename, sheet):
 
     anim_loc = df.index.get_loc('Animal ID')
     animal = df.iloc[anim_loc][0]
+    animal = animal.strip()
 
     ctx_loc = df.index.get_loc('Trial Control settings')
     context = str(df.iloc[ctx_loc][0])
     context=context.strip();
 
     skiprows = df.index.get_loc('Trial time') + 1
-    print("{} {} is {} in {}".format(filename, sheet, animal, context))
+    print("\n{} {} is {} in {}".format(filename, sheet, animal, context))
 
-    df = pd.read_excel(filepath,sheet_name=sheet,skiprows=skiprows,index_col=0,headers=0)
+    df = pd.read_excel(filepath,sheet_name=sheet,skiprows=skiprows,index_col=0,header=0)
     df = df[1:]
     df.replace(to_replace='-',value=0,inplace=True)
     return(animal,context,df)
@@ -71,7 +72,7 @@ def find_delim_vels(df,ndelim,epoch,delim_times):  #(df, i):
     # print(delim_times)
     # print(' ')
     delimidx = tone.iloc[int(delim_times[0])] #Time for tone start
-    print(delim_times)
+    #print(delim_times)
     sto = int(delim_times[1])
     eto = int(delim_times[2])
     starttime = math.floor(delimidx['Recording time']+sto) #Time for pretone start
@@ -197,13 +198,13 @@ def get_baseline_freezing(datadict, freezingThreshold, binSecs):
             nonfreezingSecs += 1
     # print('\nCounter - ', counter)
     percentFreezing = 100.0 * round(freezingSecs/(freezingSecs + nonfreezingSecs),3)
-    toneFreezing = pd.DataFrame({toneLabel: [freezingSecs, nonfreezingSecs, percentFreezing]},index=['Freezing', 'Nonfreezing','Percent Freezing']).T
+    toneFreezing = pd.DataFrame({toneLabel: [freezingSecs, nonfreezingSecs, percentFreezing]},index=['Baseline Freezing (Time Bins)', 'Baseline Nonfreezing (Time Bins)','Baseline Percent Freezing']).T
     freezing = pd.concat([freezing, toneFreezing])
     freezingSecs = 0
     nonfreezingSecs = 0
     return(freezing, freezingTimes)
 
-def get_freezing(datadict, ntones, freezingThreshold, binSecs):
+def get_freezing(datadict, ntones, freezingThreshold, scopeName, binSecs):
     freezing = pd.DataFrame()
     freezingSecs = 0
     nonfreezingSecs = 0
@@ -212,7 +213,7 @@ def get_freezing(datadict, ntones, freezingThreshold, binSecs):
     i = 0
     while i < ntones:
         toneLabel = 'Tone {}'.format(str(i+1))
-        print(toneLabel)
+        #print(toneLabel)
         epoch = datadict[i]
         vels = epoch['Velocity']
 
@@ -236,14 +237,14 @@ def get_freezing(datadict, ntones, freezingThreshold, binSecs):
                 nonfreezingSecs += 1
         # print('\nCounter - ', counter)
         percentFreezing = 100.0 * round(freezingSecs/(freezingSecs + nonfreezingSecs),3)
-        toneFreezing = pd.DataFrame({toneLabel: [freezingSecs, nonfreezingSecs, percentFreezing]},index=['Freezing', 'Nonfreezing','Percent Freezing']).T
+        toneFreezing = pd.DataFrame({toneLabel: [freezingSecs, nonfreezingSecs, percentFreezing]},index=[str(scopeName) + ' Freezing  (Time Bins)', str(scopeName) + ' Nonfreezing  (Time Bins)',str(scopeName) + ' Percent Freezing']).T
         freezing = pd.concat([freezing, toneFreezing])
         freezingSecs = 0
         nonfreezingSecs = 0
         i += 1
     return(freezing, freezingTimes)
 
-def get_darting(datadict, ntones, dartThreshold, binSecs):
+def get_darting(datadict, ntones, dartThreshold, scopeName, binSecs):
     darting = pd.DataFrame()
     dartingTimes = []
     nDarts = 0
@@ -271,7 +272,7 @@ def get_darting(datadict, ntones, dartThreshold, binSecs):
                     dartingTimes.append([n,n+binSecs])
                     break
 
-        toneDarting = pd.DataFrame({toneLabel: nDarts},index=['Darts']).T
+        toneDarting = pd.DataFrame({toneLabel: nDarts},index=[str(scopeName) + ' Darts (count)']).T
         darting = pd.concat([darting, toneDarting])
         nDarts = 0
         i += 1
@@ -366,7 +367,7 @@ def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs, 
     sns.despine(left=True, bottom=True, right=True)
     plt.title(ID + " " + trialTypeFull)
 
-    plt.legend(handles=handle_list, loc='upper left')
+    plt.legend(handles=handle_list, loc='best', fontsize='x-small',markerscale=0.6)
     
     plt.ylabel('Velocity (cm/s)')
     plt.xlabel('Trial time (s)')
@@ -532,7 +533,7 @@ def concat_all_freezing(csvlist, tbin):
         anim = get_anim(csv,-2)
         df = pd.read_csv(csv, index_col=0).T
         loc = (tbin * 3) + 2
-        percentF = pd.DataFrame([df.iloc[loc]], index=[anim])
+        percentF = pd.DataFrame([df.iloc[loc]], index=[anim + ' Percent Freezing'])
         freezing = pd.concat([freezing, percentF])
 
     return(freezing)
@@ -607,7 +608,7 @@ def compile_SR(trialType, epochLabel, numEpoch, num_dEpoch,dEpoch_list, behavior
             summaryData = concat_all_freezing(summaryCSVs,i)
         else:
             # print(i)
-            print(dEpoch_list[i])
+            # print(dEpoch_list[i])
             summaryData = concat_all_darting(summaryCSVs,i)
             
         outfile = os.path.join(outpath, 'All-'+ trialType + '-' + dEpoch_list[i] + '-' + behavior + '.csv' )
