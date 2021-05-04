@@ -611,7 +611,7 @@ if __name__ == '__main__':
                 # print(len(epoch_values))
                 # print(epoch_values[range(0,len(epoch_values))])
                 if epoch_event == 'AddEpoch':
-                    raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['NewEpoch']] = {'Label': epoch_values['NewEpoch'], 'UseSpace': epoch_values['UseSpace'], 'SubEpochs': {'Shock': '-1,0,5,True'}}
+                    raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['NewEpoch']] = {'Label': epoch_values['NewEpoch'], 'UseSpace': epoch_values['UseSpace'], 'EpochCount':1, 'SubEpochs': {'Shock': '-1,0,5,True'}}
                     epochCol = [
                                 [sg.Text('Trial Type'),sg.Combo(detectionSettingsLabel, default_value = epoch_values['TrialSelectDropdown'], enable_events=True, key='TrialSelectDropdown')],
                                 [sg.Text('Epoch label to add', size=(20,1)), sg.Input('', size=(40,1), key='NewEpoch'), sg.CBox('Space Present',pad=(20,0), default=True, key='UseSpace') , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
@@ -747,8 +747,8 @@ if __name__ == '__main__':
                     printHelp(epoch_event)
                 if epoch_event == 'dEpochTimeHelp':
                     printHelp(epoch_event)
-                if sheet_event == 'EpochCountHelp':
-                    printHelp(sheet_event)
+                if epoch_event == 'EpochCountHelp':
+                    printHelp(epoch_event)
             epochWindow.close()
         elif event == 'View Settings':
             printSettings(inpath, outpath, raw_sheetSettings, raw_trialSettings, raw_epochSettings)
