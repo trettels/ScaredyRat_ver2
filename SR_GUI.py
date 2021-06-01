@@ -586,8 +586,8 @@ if __name__ == '__main__':
             tmp_epoch = list(raw_epochSettings[detectionSettingsLabel[0]])
             epochCol = [
                         [sg.Text('Trial Type'),sg.Combo(detectionSettingsLabel, default_value = detectionSettingsLabel[0], enable_events=True, key='TrialSelectDropdown')],
-                        [sg.Text('Epoch label to add', size=(20,1)), sg.Input('', size=(40,1), key='NewEpoch'), sg.CBox('Space Present',pad=(20,0), default=True, key='UseSpace') , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
-                        [sg.Text('Epoch Label'),sg.Combo(list(raw_epochSettings[detectionSettingsLabel[0]]), default_value=tmp_epoch, enable_events=True, key='EpochSelectDropdown'), sg.Button('Delete This Epoch',key='DelEpoch')],
+                        [sg.Text('Epoch base label to add', size=(20,1)), sg.Input('', size=(40,1), key='NewEpoch'), sg.CBox('Space Present',pad=(20,0), default=True, key='UseSpace') , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
+                        [sg.Text('Epoch base Label'),sg.Combo(list(raw_epochSettings[detectionSettingsLabel[0]]), default_value=tmp_epoch, enable_events=True, key='EpochSelectDropdown'), sg.Button('Delete This Epoch',key='DelEpoch')],
                         [sg.Text('')],
                         [sg.Text('Number of epochs per trial', size=(40,1)), sg.Input(settingToString(raw_epochSettings[detectionSettingsLabel[0]][tmp_epoch[0]]['EpochCount']), size=(40,1), key='nEpochs'), sg.Button('Help', key='EpochCountHelp')],
                         [sg.Text('Derived Epoch List', size=(20,1)), sg.Input(settingToString(list(raw_epochSettings[detectionSettingsLabel[0]][tmp_epoch[0]]['SubEpochs'])), size=(40,1), key='dEpoch_list'), sg.Button('Help', key='dEpochHelp')],
@@ -614,8 +614,8 @@ if __name__ == '__main__':
                     raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['NewEpoch']] = {'Label': epoch_values['NewEpoch'], 'UseSpace': epoch_values['UseSpace'], 'EpochCount':1, 'SubEpochs': {'Shock': '-1,0,5,True'}}
                     epochCol = [
                                 [sg.Text('Trial Type'),sg.Combo(detectionSettingsLabel, default_value = epoch_values['TrialSelectDropdown'], enable_events=True, key='TrialSelectDropdown')],
-                                [sg.Text('Epoch label to add', size=(20,1)), sg.Input('', size=(40,1), key='NewEpoch'), sg.CBox('Space Present',pad=(20,0), default=True, key='UseSpace') , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
-                                [sg.Text('Epoch Label'),sg.Combo(list(raw_epochSettings[epoch_values['TrialSelectDropdown']]), default_value=epoch_values['EpochSelectDropdown'], enable_events=True, key='EpochSelectDropdown')],
+                                [sg.Text('Epoch base label to add', size=(20,1)), sg.Input('', size=(40,1), key='NewEpoch'), sg.CBox('Space Present',pad=(20,0), default=True, key='UseSpace') , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
+                                [sg.Text('Epoch base label'),sg.Combo(list(raw_epochSettings[epoch_values['TrialSelectDropdown']]), default_value=epoch_values['EpochSelectDropdown'], enable_events=True, key='EpochSelectDropdown')],
                                 [sg.Text('')],
                                 [sg.Text('Number of epochs per trial', size=(40,1)), sg.Input(settingToString(raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['EpochSelectDropdown']]['EpochCount']), size=(40,1), key='nEpochs'), sg.Button('Help', key='EpochCountHelp')],
                                 [sg.Text('Derived Epoch List', size=(20,1)), sg.Input(settingToString(list(raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['EpochSelectDropdown']]['SubEpochs'])), size=(40,1), key='dEpoch_list'), sg.Button('Help', key='dEpochHelp')],
@@ -636,8 +636,8 @@ if __name__ == '__main__':
 
                     epochCol = [
                                 [sg.Text('Trial Type'),sg.Combo(detectionSettingsLabel, default_value = epoch_values['TrialSelectDropdown'], enable_events=True, key='TrialSelectDropdown')],
-                                [sg.Text('Epoch label to add', size=(20,1)), sg.Input('', size=(40,1), key='NewEpoch'), sg.CBox('Space Present',pad=(20,0), default=True, key='UseSpace') , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
-                                [sg.Text('Epoch Label'),sg.Combo(list(raw_epochSettings[epoch_values['TrialSelectDropdown']]), default_value=epoch_values['EpochSelectDropdown'], enable_events=True, key='EpochSelectDropdown')],
+                                [sg.Text('Epoch base label to add', size=(20,1)), sg.Input('', size=(40,1), key='NewEpoch'), sg.CBox('Space Present',pad=(20,0), default=True, key='UseSpace') , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
+                                [sg.Text('Epoch base label'),sg.Combo(list(raw_epochSettings[epoch_values['TrialSelectDropdown']]), default_value=epoch_values['EpochSelectDropdown'], enable_events=True, key='EpochSelectDropdown')],
                                 [sg.Text('')],
                                 [sg.Text('Number of epochs per trial', size=(40,1)), sg.Input(settingToString(raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['EpochSelectDropdown']]['EpochCount']), size=(40,1), key='nEpochs'), sg.Button('Help', key='EpochCountHelp')],
                                 [sg.Text('Derived Epoch List', size=(20,1)), sg.Input(settingToString(list(raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['EpochSelectDropdown']]['SubEpochs'])), size=(40,1), key='dEpoch_list'), sg.Button('Help', key='dEpochHelp')],
@@ -654,8 +654,8 @@ if __name__ == '__main__':
                 if epoch_event == 'TrialSelectDropdown':
                     epochCol = [
                                 [sg.Text('Trial Type'),sg.Combo(detectionSettingsLabel, default_value = epoch_values['TrialSelectDropdown'], enable_events=True, key='TrialSelectDropdown')],
-                                [sg.Text('Epoch label to add', size=(20,1)), sg.Input('', size=(40,1), key='NewEpoch'), sg.CBox('Space Present',pad=(20,0), default=True, key='UseSpace') , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
-                                [sg.Text('Epoch Label'),sg.Combo(list(raw_epochSettings[epoch_values['TrialSelectDropdown']]), default_value=epoch_values['EpochSelectDropdown'], enable_events=True, key='EpochSelectDropdown')],
+                                [sg.Text('Epoch base label to add', size=(20,1)), sg.Input('', size=(40,1), key='NewEpoch'), sg.CBox('Space Present',pad=(20,0), default=True, key='UseSpace') , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
+                                [sg.Text('Epoch base label'),sg.Combo(list(raw_epochSettings[epoch_values['TrialSelectDropdown']]), default_value=epoch_values['EpochSelectDropdown'], enable_events=True, key='EpochSelectDropdown')],
                                 [sg.Text('')],
                                 [sg.Text('Number of epochs per trial', size=(40,1)), sg.Input(settingToString(raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['EpochSelectDropdown']]['EpochCount']), size=(40,1), key='nEpochs'), sg.Button('Help', key='EpochCountHelp')],
                                 [sg.Text('Derived Epoch List', size=(20,1)), sg.Input(settingToString(list(raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['EpochSelectDropdown']]['SubEpochs'])), size=(40,1), key='dEpoch_list'), sg.Button('Help', key='dEpochHelp')],
@@ -726,8 +726,8 @@ if __name__ == '__main__':
 
                     epochCol = [
                                 [sg.Text('Trial Type'),sg.Combo(detectionSettingsLabel, default_value = epoch_values['TrialSelectDropdown'], enable_events=True, key='TrialSelectDropdown')],
-                                [sg.Text('Epoch label to add', size=(20,1)), sg.Input('', size=(40,1), key='NewEpoch'), sg.CBox('Space Present',pad=(20,0), default=True, key='UseSpace') , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
-                                [sg.Text('Epoch Label'),sg.Combo(list(raw_epochSettings[epoch_values['TrialSelectDropdown']]), default_value=epoch_values['EpochSelectDropdown'], enable_events=True, key='EpochSelectDropdown')],
+                                [sg.Text('Epoch base label to add', size=(20,1)), sg.Input('', size=(40,1), key='NewEpoch'), sg.CBox('Space Present',pad=(20,0), default=True, key='UseSpace') , sg.Button('Add Epoch Label',key='AddEpoch'), sg.Button('Help', key='EpochHelp')],
+                                [sg.Text('Epoch base label'),sg.Combo(list(raw_epochSettings[epoch_values['TrialSelectDropdown']]), default_value=epoch_values['EpochSelectDropdown'], enable_events=True, key='EpochSelectDropdown')],
                                 [sg.Text('')],
                                 [sg.Text('Number of epochs per trial', size=(40,1)), sg.Input(settingToString(raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['EpochSelectDropdown']]['EpochCount']), size=(40,1), key='nEpochs'), sg.Button('Help', key='EpochCountHelp')],
                                 [sg.Text('Derived Epoch List', size=(20,1)), sg.Input(settingToString(list(raw_epochSettings[epoch_values['TrialSelectDropdown']][epoch_values['EpochSelectDropdown']]['SubEpochs'])), size=(40,1), key='dEpoch_list'), sg.Button('Help', key='dEpochHelp')],
