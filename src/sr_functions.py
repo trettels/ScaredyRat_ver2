@@ -326,12 +326,13 @@ def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs, 
     # Loops through shocks, plots each one in magenta
     line3=[]
     hasShock=False
+    c_num=0
     for i in range(0,len(printLabels)):
         # print(printSettings[i][3])
         # print(bool(printSettings[i][3]))
         if(printSettings[i][3] == 'False'):
             continue
-        c_num = i % 4
+        c_num = c_num % 4
         hasShock = True
         for j in range(0,ntones):
             response = find_delim_vels(anim,j,epochLabel,printSettings[i])
@@ -339,6 +340,7 @@ def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs, 
             
         if 'line_tmp' in locals():
             handle_list.append(line_tmp)    
+        c_num += 1
     # print('Trying to plot, 4')
     # i = 0
     # hasShock = False
@@ -616,10 +618,10 @@ def compile_SR(trialType, epochLabel, numEpoch, num_dEpoch,dEpoch_list, behavior
         # print(epochLabel[0])
         # print(trialType)
         # print(dEpoch_list[i])
-        # maxdECSVs = scaredy_find_csvs(inpath, trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-max')
-        # maxData = concat_all_darting(maxdECSVs,1)
-        # outfile = os.path.join(outpath, 'All-'+ trialType + '-' + dEpoch_list[i] + '-' + 'MaxVel' + '.csv' )
-        # maxData.to_csv(outfile)
+        maxdECSVs = scaredy_find_csvs(inpath, trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-max')
+        maxData = concat_all_darting(maxdECSVs,1)
+        outfile = os.path.join(outpath, 'All-'+ trialType + '-' + dEpoch_list[i] + '-MaxVel.csv' )
+        maxData.to_csv(outfile)
         
         
         maxes = compress_data(maxCSVs,i)
