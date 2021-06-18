@@ -212,7 +212,7 @@ def get_freezing(datadict, ntones, freezingThreshold, scopeName, binSecs):
 
     i = 0
     while i < ntones:
-        toneLabel = 'Tone {}'.format(str(i+1))
+        toneLabel = scopeName + ' {}'.format(str(i+1))
         #print(toneLabel)
         epoch = datadict[i]
         vels = epoch['Velocity']
@@ -251,7 +251,7 @@ def get_darting(datadict, ntones, dartThreshold, scopeName, binSecs):
 
     i = 0
     while i < ntones:
-        toneLabel = 'Tone {}'.format(str(i+1))
+        toneLabel = scopeName + ' {}'.format(str(i+1))
 
         epoch = datadict[i]
         vels = epoch['Velocity']
@@ -328,9 +328,9 @@ def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs, 
     hasShock=False
     c_num=0
     for i in range(0,len(printLabels)):
-        # print(printSettings[i][3])
+        # print(printSettings[i])
         # print(bool(printSettings[i][3]))
-        if(printSettings[i][3] == 'False'):
+        if(not printSettings[i] or len(printSettings[i]) < 4 or printSettings[i][3] == 'False'):
             continue
         c_num = c_num % 4
         hasShock = True
@@ -375,7 +375,7 @@ def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs, 
     plt.xlabel('Trial time (s)')
     # print('Trying to plot, 6')
     ## define where to save the fig
-    fname = outpath + '/' + trialType + '-plot-{}'
+    fname = outpath + '/' + trialType + '-' + epochLabel +'-plot-{}'
     fname = fname.format(ID)
 
     plt.savefig(fname, dpi=300)
@@ -474,7 +474,7 @@ def get_top_vels(datadict, nmax, binlabel, ntones):
         else:
             topvels = pd.DataFrame([vlist[-nmax:-1]])
         nmaxes= nmaxes.append(topvels)
-        col_list.append(binlabel + str(i) + ' Max Velocity')
+        col_list.append(binlabel + str(i+1) + ' Max Velocity')
         i += 1
     if nmax > 1:
         nmaxes.index = np.arange(1, nmaxes.shape[0] + 1)
@@ -482,7 +482,7 @@ def get_top_vels(datadict, nmax, binlabel, ntones):
     
         nmaxes['Avg Max'] = nmaxes.mean(axis = 1)
     else:
-        # nmaxes.index = col_list
+        nmaxes.index = col_list
         nmaxes.columns = ['Max Velocity']
     return(nmaxes)
     
@@ -546,8 +546,13 @@ def concat_all_max(csvlist):
     for csv in csvlist:
         anim = get_anim(csv,-2)
         df = pd.read_csv(csv,index_col=0)
-        meanMax = pd.DataFrame({anim: df['Avg Max']}).T
-        maxes = pd.concat([maxes, meanMax])
+        if 'Avg Max' in df:
+            meanMax = pd.DataFrame({anim: df['Avg Max']}).T
+            maxes = pd.concat([maxes, meanMax])
+        else:
+            curMaxes = pd.DataFrame({anim: df['Max Velocity']}).T
+            maxes = pd.concat([maxes, curMaxes])
+
 
     return(maxes)
 
@@ -574,7 +579,8 @@ def compress_data(csvlist,tbin):
     for csv in csvlist:
         anim = get_anim(csv,-2)
         df = pd.read_csv(csv,index_col=0).transpose()
-
+        # print(csv)
+        # print(tbin)
         tonevels = pd.DataFrame(df.iloc[tbin]).transpose()
         tonevels.set_index([[anim]],inplace=True)
 
@@ -592,14 +598,42 @@ def compile_SR(trialType, epochLabel, numEpoch, num_dEpoch,dEpoch_list, behavior
     # print(inpath+trialType + '-' + behavior)
     summaryCSVs = scaredy_find_csvs(inpath,trialType + '-' + behavior)
     # print(summaryCSVs)
+    
     meanCSVs = scaredy_find_csvs(inpath,trialType + '-mean')
-    # print(dEpoch_list)
-
-    # print(inpath+trialType + '-mean')
-    # print(meanCSVs)
     medCSVs = scaredy_find_csvs(inpath,trialType + '-median')
     maxCSVs = scaredy_find_csvs(inpath,trialType + '-max')
     SEMCSVs = scaredy_find_csvs(inpath,trialType + '-SEM')
+    maxes = compress_data(maxCSVs,0)
+    means = compress_data(meanCSVs,0)
+    meds = compress_data(medCSVs,0)
+    SEMs = compress_data(SEMCSVs,0)
+    allData = concat_data(means,SEMs,meds,maxes,numEpoch)
+    outfile = os.path.join(outpath,'All-'+ trialType + '-VelocitySummary.csv')
+    allData.to_csv(outfile)
+
+    summaryECSVs = scaredy_find_csvs(inpath,trialType + '-' + behavior)
+    # print(summaryCSVs)
+    
+    meanECSVs = scaredy_find_csvs(inpath,trialType + '-' + epochLabel + '-mean')
+    medECSVs = scaredy_find_csvs(inpath,trialType + '-' + epochLabel + '-median')
+    maxECSVs = scaredy_find_csvs(inpath,trialType + '-' + epochLabel + '-max')
+    SEMECSVs = scaredy_find_csvs(inpath,trialType + '-' + epochLabel + '-SEM')
+    Emaxes = compress_data(maxECSVs,0)
+    Emeans = compress_data(meanECSVs,0)
+    Emeds = compress_data(medECSVs,0)
+    ESEMs = compress_data(SEMECSVs,0)
+    allData = concat_data(Emeans,ESEMs,Emeds,Emaxes,numEpoch)
+    outfile = os.path.join(outpath,'All-'+ trialType + '-' + epochLabel + '-VelocitySummary.csv')
+    allData.to_csv(outfile)
+    
+    Emaxes_single = concat_all_max(maxECSVs)
+    outfile = os.path.join(outpath, 'All-'+ trialType + '-' +  epochLabel + '-MaxVel.csv' )
+    Emaxes_single.to_csv(outfile)
+
+    # allMax = concat_all_max(maxCSVs)
+    # outfile = os.path.join(outpath, 'All-'+ trialType + '-MaxVel.csv' )
+    # allMax.to_csv(outfile)
+
     num_dEpoch = len(dEpoch_list)
     # print(dEpoch_list)
     if num_dEpoch==0 or dEpoch_list == ['']:
@@ -613,23 +647,25 @@ def compile_SR(trialType, epochLabel, numEpoch, num_dEpoch,dEpoch_list, behavior
             # print(dEpoch_list[i])
             summaryData = concat_all_darting(summaryCSVs,i)
             
-        outfile = os.path.join(outpath, 'All-'+ trialType + '-' + dEpoch_list[i] + '-' + behavior + '.csv' )
+        outfile = os.path.join(outpath, 'All-'+ trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-' + behavior + '.csv' )
         summaryData.to_csv(outfile)
-        # print(epochLabel[0])
-        # print(trialType)
-        # print(dEpoch_list[i])
+
+        # print(trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-max')
         maxdECSVs = scaredy_find_csvs(inpath, trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-max')
-        maxData = concat_all_darting(maxdECSVs,1)
-        outfile = os.path.join(outpath, 'All-'+ trialType + '-' + dEpoch_list[i] + '-MaxVel.csv' )
-        maxData.to_csv(outfile)
+        # print(maxdECSVs)
+        allMax = concat_all_max(maxdECSVs)
+        outfile = os.path.join(outpath, 'All-'+ trialType + '-' +  epochLabel + '_' + dEpoch_list[i] + '-MaxVel.csv' )
+        allMax.to_csv(outfile)
         
-        
-        maxes = compress_data(maxCSVs,i)
-        means = compress_data(meanCSVs,i)
-        meds = compress_data(medCSVs,i)
-        SEMs = compress_data(SEMCSVs,i)
+        meandECSVs = scaredy_find_csvs(inpath, trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-mean')
+        meddECSVs = scaredy_find_csvs(inpath, trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-median')
+        SEMdECSVs = scaredy_find_csvs(inpath, trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-SEM')
+        maxes = compress_data(maxdECSVs,0)
+        means = compress_data(meandECSVs,0)
+        meds = compress_data(meddECSVs,0)
+        SEMs = compress_data(SEMdECSVs,0)
         allData = concat_data(means,SEMs,meds,maxes,numEpoch)
-        outfile = os.path.join(outpath,'All-'+ trialType + '-' +dEpoch_list[i] + '-VelocitySummary.csv')
+        outfile = os.path.join(outpath,'All-'+ trialType + '-' +  epochLabel + '_' + dEpoch_list[i] + '-VelocitySummary.csv')
         allData.to_csv(outfile)
-    
-    
+        
+
