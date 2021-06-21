@@ -237,7 +237,7 @@ def get_freezing(datadict, ntones, freezingThreshold, scopeName, binSecs):
                 nonfreezingSecs += 1
         # print('\nCounter - ', counter)
         percentFreezing = 100.0 * round(freezingSecs/(freezingSecs + nonfreezingSecs),3)
-        toneFreezing = pd.DataFrame({toneLabel: [freezingSecs, nonfreezingSecs, percentFreezing]},index=[str(scopeName) + ' Freezing  (Time Bins)', str(scopeName) + ' Nonfreezing  (Time Bins)',str(scopeName) + ' Percent Freezing']).T
+        toneFreezing = pd.DataFrame({toneLabel: [freezingSecs, nonfreezingSecs, percentFreezing]},index=['Freezing  (Time Bins)', 'Nonfreezing  (Time Bins)','Percent Freezing']).T
         freezing = pd.concat([freezing, toneFreezing])
         freezingSecs = 0
         nonfreezingSecs = 0
@@ -272,7 +272,7 @@ def get_darting(datadict, ntones, dartThreshold, scopeName, binSecs):
                     dartingTimes.append([n,n+binSecs])
                     break
 
-        toneDarting = pd.DataFrame({toneLabel: nDarts},index=[str(scopeName) + ' Darts (count)']).T
+        toneDarting = pd.DataFrame({toneLabel: nDarts},index=['Darts (count)']).T
         darting = pd.concat([darting, toneDarting])
         nDarts = 0
         i += 1
@@ -535,7 +535,7 @@ def concat_all_freezing(csvlist, tbin):
         anim = get_anim(csv,-2)
         df = pd.read_csv(csv, index_col=0).T
         loc = (tbin * 3) + 2
-        percentF = pd.DataFrame([df.iloc[loc]], index=[anim + ' Percent Freezing'])
+        percentF = pd.DataFrame([df.iloc[loc]], index=[anim])
         freezing = pd.concat([freezing, percentF])
 
     return(freezing)
@@ -596,8 +596,15 @@ def compile_BaselineSR(trialType, inpath, outpath):
         
 def compile_SR(trialType, epochLabel, numEpoch, num_dEpoch,dEpoch_list, behavior, inpath, outpath):
     # print(inpath+trialType + '-' + behavior)
-    summaryCSVs = scaredy_find_csvs(inpath,trialType + '-' + behavior)
-    # print(summaryCSVs)
+    dartingCSVs = scaredy_find_csvs(inpath,trialType + '-' + epochLabel + '-darting')
+    darting_outfile = os.path.join(outpath, 'All-'+ trialType + '-' + epochLabel + '-darting.csv' )
+    dartingData = concat_all_darting(dartingCSVs,0)
+    dartingData.to_csv(darting_outfile)
+    
+    freezingCSVs = scaredy_find_csvs(inpath,trialType + '-' + epochLabel + '-freezing')
+    freezing_outfile = os.path.join(outpath, 'All-'+ trialType + '-' + epochLabel + '-Percent_freezing.csv' )
+    freezingData = concat_all_darting(freezingCSVs,0)
+    freezingData.to_csv(freezing_outfile)
     
     meanCSVs = scaredy_find_csvs(inpath,trialType + '-mean')
     medCSVs = scaredy_find_csvs(inpath,trialType + '-median')
@@ -610,9 +617,6 @@ def compile_SR(trialType, epochLabel, numEpoch, num_dEpoch,dEpoch_list, behavior
     allData = concat_data(means,SEMs,meds,maxes,numEpoch)
     outfile = os.path.join(outpath,'All-'+ trialType + '-VelocitySummary.csv')
     allData.to_csv(outfile)
-
-    summaryECSVs = scaredy_find_csvs(inpath,trialType + '-' + behavior)
-    # print(summaryCSVs)
     
     meanECSVs = scaredy_find_csvs(inpath,trialType + '-' + epochLabel + '-mean')
     medECSVs = scaredy_find_csvs(inpath,trialType + '-' + epochLabel + '-median')
@@ -640,16 +644,6 @@ def compile_SR(trialType, epochLabel, numEpoch, num_dEpoch,dEpoch_list, behavior
         return
     # print(num_dEpoch)
     for i in range(0,num_dEpoch):
-        if(behavior.lower() == "freezing"):
-            summaryData = concat_all_freezing(summaryCSVs,i)
-        else:
-            # print(i)
-            # print(dEpoch_list[i])
-            summaryData = concat_all_darting(summaryCSVs,i)
-            
-        outfile = os.path.join(outpath, 'All-'+ trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-' + behavior + '.csv' )
-        summaryData.to_csv(outfile)
-
         # print(trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-max')
         maxdECSVs = scaredy_find_csvs(inpath, trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-max')
         # print(maxdECSVs)
@@ -667,5 +661,15 @@ def compile_SR(trialType, epochLabel, numEpoch, num_dEpoch,dEpoch_list, behavior
         allData = concat_data(means,SEMs,meds,maxes,numEpoch)
         outfile = os.path.join(outpath,'All-'+ trialType + '-' +  epochLabel + '_' + dEpoch_list[i] + '-VelocitySummary.csv')
         allData.to_csv(outfile)
+        
+        dEdartingCSVs = scaredy_find_csvs(inpath,trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-darting')
+        dEdarting_outfile = os.path.join(outpath, 'All-'+ trialType + '-' +  epochLabel + '_' + dEpoch_list[i] + '-darting.csv' )
+        dEdartingData = concat_all_darting(dEdartingCSVs,0)
+        dEdartingData.to_csv(dEdarting_outfile)
+        
+        dEfreezingCSVs = scaredy_find_csvs(inpath,trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-freezing')
+        dEfreezing_outfile = os.path.join(outpath, 'All-'+ trialType + '-'+  epochLabel + '_' + dEpoch_list[i] + '-Percent_freezing.csv' )
+        dEfreezingData = concat_all_darting(dEfreezingCSVs,0)
+        dEfreezingData.to_csv(dEfreezing_outfile)
         
 
