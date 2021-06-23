@@ -379,7 +379,7 @@ def plot_outputs(anim, ID, trialTypeFull, outpath, trialType, ntones, FTs, DTs, 
     fname = fname.format(ID)
 
     plt.savefig(fname, dpi=300)
-    plt.savefig(fname+'eps', format='eps',dpi=300)
+    plt.savefig(fname+'.eps', format='eps',dpi=300)
     # print('Trying to plot, 7')
     # plt.show()
     plt.close()

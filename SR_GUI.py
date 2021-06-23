@@ -13,6 +13,7 @@ import sr_help as srh
 
 ## Set theme colors
 sg.theme('Light Green 3')
+sg.set_options(font=('Ariel 14'))
 
 ## default ScaredyRat settings
 inpath = './'
@@ -165,11 +166,23 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
     ## Search the inpath for files
     filelist = []
     for entry in os.scandir(inpath):
-        if entry.is_file():
+        if entry.is_file() and not entry.name.startswith('~'):
             filelist.append(entry.path)
 
+    prog_layout = [[sg.ProgressBar(max_value = 4*len(filelist), orientation='horizontal', size=(20,10), style='clam', key='SR_PROG')],
+                    [sg.Cancel()]]
+    f_ct = 0
+    prog_win = sg.Window('ScaredyRat', prog_layout)
+    prog_bar = prog_win['SR_PROG']
     for file in filelist:
         for sheet in sheetlist:
+            f_ct +=1
+            progevent, progvals = prog_win.read(timeout=1)
+            if progevent =='Cancel' or progevent == sg.WIN_CLOSED:
+                break
+
+            prog_bar.update(f_ct)
+            
             ## set input/output info
             ID,ctx,anim = srf.animal_read(inpath,file,sheet)
             print('\nEvaluating '+ sheet + ' in the file '+ file)
@@ -488,6 +501,7 @@ def run_SR(inpath, outpath, raw_sheet_settings, raw_trial_settings, raw_epoch_se
             # for dEpoch_iter in raw_epochSettings[detectionSettingsLabel[k]][epoch_iter]['SubEpochs']:
             #     srf.compile_SR(trialType_list[k], epoch_iter, epoch_ct, 1, [dEpoch_iter],'Darting',outpath,outpath2)
             #     srf.compile_SR(trialType_list[k], epoch_iter, epoch_ct, 1, [dEpoch_iter],'Freezing',outpath,outpath2)
+    prog_win.close()
 
 ################################################################################################
 ## Execution
