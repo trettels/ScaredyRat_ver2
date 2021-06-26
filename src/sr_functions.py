@@ -603,7 +603,7 @@ def compile_SR(trialType, epochLabel, numEpoch, num_dEpoch,dEpoch_list, behavior
     
     freezingCSVs = scaredy_find_csvs(inpath,trialType + '-' + epochLabel + '-freezing')
     freezing_outfile = os.path.join(outpath, 'All-'+ trialType + '-' + epochLabel + '-Percent_freezing.csv' )
-    freezingData = concat_all_darting(freezingCSVs,0)
+    freezingData = concat_all_freezing(freezingCSVs,0)
     freezingData.to_csv(freezing_outfile)
     
     meanCSVs = scaredy_find_csvs(inpath,trialType + '-mean')
@@ -669,7 +669,7 @@ def compile_SR(trialType, epochLabel, numEpoch, num_dEpoch,dEpoch_list, behavior
         
         dEfreezingCSVs = scaredy_find_csvs(inpath,trialType + '-' + epochLabel + '_' + dEpoch_list[i] + '-freezing')
         dEfreezing_outfile = os.path.join(outpath, 'All-'+ trialType + '-'+  epochLabel + '_' + dEpoch_list[i] + '-Percent_freezing.csv' )
-        dEfreezingData = concat_all_darting(dEfreezingCSVs,0)
+        dEfreezingData = concat_all_freezing(dEfreezingCSVs,0)
         dEfreezingData.to_csv(dEfreezing_outfile)
         
 
