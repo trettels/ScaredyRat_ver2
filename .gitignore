@@ -4,3 +4,8 @@ build/ScaredyRat/EXE-00.toc
 *.toc
 *.zip
 *.exe
+*.spec
+*.html
+*.pyz
+*.manifest
+*.txt
