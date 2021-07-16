@@ -9,3 +9,6 @@ build/ScaredyRat/EXE-00.toc
 *.pyz
 *.manifest
 *.txt
+__pycache__
+UPX
+.DS_STORE
