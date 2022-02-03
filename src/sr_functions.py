@@ -217,13 +217,13 @@ def get_freezing(datadict, ntones, freezingThreshold, scopeName, binSecs):
         epoch = datadict[i]
         vels = epoch['Velocity']
 
-        startSec = int(round(vels.index[0],0))
-        endSec = int(round(vels.index[-1],0))
-        # print('\nNumber of indices - ', vels.index.size,'\nLost frames leading - ',(vels.index[0] - startSec),'\nLost frames after - ',(vels.index[-1] - endSec))
+        startSec = round(vels.index[0],2)
+        endSec = round(vels.index[-1],2)
+        print('\nNumber of indices - ', vels.index.size,'\nStart - ',startSec,'\nEnd - ',endSec)
         counter = 0
-        for n in range(startSec, endSec-1, binSecs):
-            startOfSecond = vels.index.get_loc(n, method='bfill')
-            endOfSecond = vels.index.get_loc(n+(binSecs-0.1), method='bfill')
+        for n in np.arange(startSec, endSec, binSecs):
+            startOfSecond = vels.index.get_loc(n, method='nearest')
+            endOfSecond = vels.index.get_loc(round(n+(binSecs-0.1),2), method='nearest')
             velsInSec = []
             #counter += endOfSecond-startOfSecond
             for frame in range(startOfSecond, endOfSecond):
@@ -236,6 +236,7 @@ def get_freezing(datadict, ntones, freezingThreshold, scopeName, binSecs):
             else:
                 nonfreezingSecs += 1
         # print('\nCounter - ', counter)
+        print('\n fs: ',freezingSecs,'\t nfs: ', nonfreezingSecs)
         percentFreezing = 100.0 * round(freezingSecs/(freezingSecs + nonfreezingSecs),3)
         toneFreezing = pd.DataFrame({toneLabel: [freezingSecs, nonfreezingSecs, percentFreezing]},index=['Freezing  (Time Bins)', 'Nonfreezing  (Time Bins)','Percent Freezing']).T
         freezing = pd.concat([freezing, toneFreezing])
@@ -256,12 +257,12 @@ def get_darting(datadict, ntones, dartThreshold, scopeName, binSecs):
         epoch = datadict[i]
         vels = epoch['Velocity']
 
-        startSec = int(round(vels.index[0],0))
-        endSec = int(round(vels.index[-1],0))
+        startSec = (round(vels.index[0],2))
+        endSec = (round(vels.index[-1],2))
 
-        for n in range(startSec, endSec-1, binSecs):
-            startOfSecond = vels.index.get_loc(n, method='bfill')
-            endOfSecond = vels.index.get_loc(n+(binSecs-0.1), method='bfill')
+        for n in np.arange(startSec, endSec, binSecs):
+            startOfSecond = vels.index.get_loc(n, method='nearest')
+            endOfSecond = vels.index.get_loc(round(n+(binSecs-0.1),2), method='nearest')
             velsInSec = []
             for frame in range(startOfSecond, endOfSecond):
                 velocity = float(vels.iloc[frame])
